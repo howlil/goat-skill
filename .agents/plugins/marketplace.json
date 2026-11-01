@@ -1,0 +1,19 @@
+{
+  "name": "goat-skill-marketplace",
+  "plugins": [
+    {
+      "name": "goat-skill",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "interface": {
+        "displayName": "Goat Skill"
+      }
+    }
+  ]
+}
