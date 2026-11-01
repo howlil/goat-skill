@@ -57,7 +57,7 @@ def check_skill(skill_dir: Path) -> None:
         fail(f"{entry.relative_to(ROOT)}: description must be 1–1024 characters")
     if not source[frontmatter.end():].strip():
         fail(f"{entry.relative_to(ROOT)}: instructions must not be empty")
-    for relative in set(re.findall(r"references/[a-zA-Z0-9_.-]+\\.md", source)):
+    for relative in set(re.findall(r"references/[a-zA-Z0-9_.-]+\.md", source)):
         if not (skill_dir / relative).is_file():
             fail(f"{entry.relative_to(ROOT)}: missing referenced file {relative}")
 
