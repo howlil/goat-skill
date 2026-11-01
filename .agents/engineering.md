@@ -12,7 +12,7 @@ Static GitHub repository. Agents load canonical `skills/<name>/SKILL.md` accordi
 - `scripts/validate.py`: metadata consistency and basic skill layout checks.
 
 ## State & contracts
-No runtime or persisted user state. All manifests share the same plugin name and version. Future skill folder and YAML `name` must match.
+No runtime or persisted user state. All manifests share the same plugin name and version. Skill folder and YAML `name` must match. The plugin is named `gs` (Claude command `/gs:product`); other hosts use their own invocation syntax.
 
 ## Verification
 Local: `python3 scripts/validate.py`; CI: same command on push/PR.
@@ -20,4 +20,4 @@ Host smoke checks are pending: `claude plugin validate .` and `agy plugin valida
 A passing static check is not proof of plugin installation or working skill behavior.
 
 ## Release
-Do not publish or tag an empty skill collection. Before release: choose license, add at least one evaluated skill, run host checks, and deliberately bump manifest versions.
+Do not publish or tag before deliberate release approval. Before first public release: choose a license, run host-specific installation checks and product-skill behavior evaluations.

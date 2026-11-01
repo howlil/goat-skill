@@ -57,26 +57,29 @@ def check_skill(skill_dir: Path) -> None:
         fail(f"{entry.relative_to(ROOT)}: description must be 1–1024 characters")
     if not source[frontmatter.end():].strip():
         fail(f"{entry.relative_to(ROOT)}: instructions must not be empty")
+    for relative in set(re.findall(r"references/[a-zA-Z0-9_.-]+\.md", source)):
+        if not (skill_dir / relative).is_file():
+            fail(f"{entry.relative_to(ROOT)}: missing referenced file {relative}")
 
 
 def main() -> None:
     manifest_data = [load_json(path) for path in MANIFESTS]
     names = {item.get("name") for item in manifest_data}
     versions = {item.get("version") for item in manifest_data}
-    if names != {"goat-skill"} or len(versions) != 1 or not all(
+    if names != {"gs"} or len(versions) != 1 or not all(
         isinstance(v, str) and v for v in versions
     ):
         fail("plugin manifests have mismatched name or version")
     claude = load_json(".claude-plugin/marketplace.json")
     if not any(
-        entry.get("name") == "goat-skill"
+        entry.get("name") == "gs"
         and entry.get("source") == {"source": "github", "repo": "howlil/goat-skill"}
         for entry in claude.get("plugins", [])
     ):
         fail("Claude marketplace source is missing or inconsistent")
     codex = load_json(".agents/plugins/marketplace.json")
     if not any(
-        entry.get("name") == "goat-skill"
+        entry.get("name") == "gs"
         and entry.get("source") == {"source": "local", "path": "./"}
         for entry in codex.get("plugins", [])
     ):

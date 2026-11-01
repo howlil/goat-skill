@@ -2,7 +2,7 @@
   "name": "goat-skill-marketplace",
   "plugins": [
     {
-      "name": "goat-skill",
+      "name": "gs",
       "source": {
         "source": "local",
         "path": "./"

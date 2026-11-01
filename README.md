@@ -2,20 +2,22 @@
 
 **Portable software-engineering skills for Codex, Claude Code, and Antigravity (Agy).**
 
-> **Scaffold only.** There are no authored `SKILL.md` files, functional skills, or published skill releases yet. The repository currently establishes packaging and authoring conventions.
+> **First skill in development:** `product` (Direct / Shape / Discover). This branch is not a published plugin release.
 
 ## Design
 
 - **One canonical source:** `skills/<skill-name>/SKILL.md` follows the [Agent Skills specification](https://agentskills.io/specification).
 - **No duplicated skills:** Codex, Claude Code, and Agy consume the same `skills/` folder. Platform-specific files contain distribution metadata only.
 - **Progressive disclosure:** Keep the entrypoint focused. Add `references/`, `scripts/`, or `assets/` inside a skill only when needed.
-- **No premature runtime:** No hooks, MCP servers, Node.js dependency, generated variants, or skills until their requirements exist.
+- **No premature runtime:** No hooks, MCP servers, Node.js dependency, or generated platform-specific variants.
 
 ## Repository layout
 
 ```text
 goat-skill/
-├── skills/                           # Canonical skills; currently empty
+├── skills/product/                  # Canonical product skill
+│   ├── SKILL.md
+│   └── references/{discover,examples}.md
 ├── plugin.json                       # Portable Agent Plugins / Codex
 ├── .claude-plugin/
 │   ├── plugin.json                   # Claude Code identity
@@ -28,7 +30,7 @@ goat-skill/
 └── README.md
 ```
 
-## Validate the scaffold
+## Validate the skill
 
 ```bash
 python3 scripts/validate.py
@@ -56,11 +58,25 @@ codex plugin marketplace add howlil/goat-skill
 
 # Claude Code — register marketplace and install plugin
 claude plugin marketplace add howlil/goat-skill
-claude plugin install goat-skill@goat-skill-marketplace
+claude plugin install gs@goat-skill-marketplace
 
 # Antigravity CLI — install GitHub plugin bundle
 agy plugin install https://github.com/howlil/goat-skill
 ```
+
+## Product skill
+
+The canonical source is [`skills/product/SKILL.md`](skills/product/SKILL.md), with [Discovery](skills/product/references/discover.md) and [worked examples](skills/product/references/examples.md) loaded only as needed.
+
+| Client | Explicit invocation |
+| --- | --- |
+| Claude Code plugin | `/gs:product` |
+| Codex plugin or installed skill | `$product` |
+| Antigravity plugin | `/product` |
+
+`gs` is the **plugin identity**, `product` is the **portable Agent Skill name**. The literal syntax `gs:product` is not universal across hosts.
+
+Use **Direct** for clear, low-risk work; **Shape** for underspecified behavior; **Discover** when evidence is needed to decide whether to build. Critical irreversible decisions remain blocked until answered. Skill-specific behavior evaluations and native host-install smoke checks have **not** run.
 
 ## Adding a skill later
 
