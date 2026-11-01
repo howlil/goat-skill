@@ -1,0 +1,9 @@
+{
+  "name": "goat-skill",
+  "version": "0.1.0",
+  "description": "Portable software-engineering agent skills for Codex, Claude Code, and Antigravity.",
+  "author": {
+    "name": "howlil"
+  },
+  "repository": "https://github.com/howlil/goat-skill"
+}
