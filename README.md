@@ -15,7 +15,9 @@
 
 ```text
 goat-skill/
-├── skills/product/                  # Canonical product skill\n│   ├── SKILL.md\n│   └── references/{discover,examples}.md
+├── skills/product/                  # Canonical product skill
+│   ├── SKILL.md
+│   └── references/{discover,examples}.md
 ├── plugin.json                       # Portable Agent Plugins / Codex
 ├── .claude-plugin/
 │   ├── plugin.json                   # Claude Code identity
