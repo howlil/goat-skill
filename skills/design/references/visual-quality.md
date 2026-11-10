@@ -1,42 +1,83 @@
 # Visual quality and the design system
 
-Use when the surface has no established identity, when exploring a new visual direction, when auditing visual quality, or when creating or updating DESIGN.md.
+Use when checking consistency with an established visual system, creating a restrained direction where no identity exists, or updating DESIGN.md. Layout structure belongs to `references/layout.md`; generic/template risk belongs to `references/anti-slop.md`.
 
 ## Contents
-- Anchor to the identity that exists
+- Authority
+- System consistency
 - When no identity exists
-- Review procedure
+- Final visual review
 - DESIGN.md and tokens
 
-## Anchor to the identity that exists
+## Authority
 
-Order of authority: the user's brief, DESIGN.md, the token source in code, then the existing screens. Match them. Where they conflict, say so instead of choosing silently. Generic output comes from unanchored choices, so the fix is an anchor, not a longer list of bans.
+For visual implementation, use this order:
+
+```text
+user brief
+-> DESIGN.md / brand guidance
+-> token and component source in code
+-> existing screens
+-> generic Goat guidance
+```
+
+Where these conflict, say so instead of silently picking a new style. Code remains authoritative for actual token values.
+
+## System consistency
+
+Check the visual vocabulary that the project already owns:
+
+- typography roles and scale;
+- semantic color roles;
+- spacing scale;
+- radius and shape language;
+- borders/elevation/depth;
+- icon family and sizing;
+- component states;
+- density;
+- motion vocabulary.
+
+Reuse the established role before inventing a new one. A one-off value is justified only when the existing system cannot express the requirement.
+
+Do not normalize deliberate exceptions merely to make the system look mathematically uniform.
 
 ## When no identity exists
 
-Before styling, write a direction in at most six lines: the subject and audience, the primary job of the surface, four to six color roles, type roles, density, and one principle. Then ask whether the same direction would come out for any similar product. If it would, revise the parts that read as defaults and say what you changed.
+Before styling, write a direction in at most six lines:
 
-Lists of banned fonts and colors are a weak control: models tend to move to the next most common choice. Specific choices tied to the subject work better than avoided ones. Spend boldness in one place and keep the rest quiet.
+- subject and audience;
+- primary job of the surface;
+- four to six semantic color roles;
+- typography roles;
+- density;
+- one visual principle.
 
-## Review procedure
+Then run `references/anti-slop.md` before implementation. The direction should be specific enough that replacing only the logo and copy would not make it equally suitable for an unrelated product.
 
-Render the states you changed and compare each with the baseline: normal, empty, loading, error, compact and expanded, and the widths the app supports. Score five things:
+Do not create a complete brand system for a feature that only needs a local interface.
+
+## Final visual review
+
+Render only the states and widths affected by the change. Review:
 
 | Dimension | Check |
 |---|---|
-| Specificity | reflects this product, not a template |
-| Hierarchy | primary action and key information are obvious |
-| Composition | proportion, alignment, density, and whitespace look intentional |
-| Consistency | type, radius, spacing, color, icons, and motion follow the system |
-| Behavior | every interaction has feedback and a recovery path |
+| System fit | tokens, components, type, icons, shape, and depth follow the project |
+| Hierarchy | priority remains obvious after the actual content is rendered |
+| Composition | proportion, alignment, and density feel deliberate |
+| Consistency | repeated roles look and behave consistently |
+| State quality | loading, empty, error, disabled, focus, and selected states belong to the same system |
 
-Fix in this order: hierarchy, composition, consistency, and only then effects. Effects do not repair weak structure.
+If hierarchy/composition fail, go back to `references/layout.md`. If the result feels interchangeable with another product, use `references/anti-slop.md`. Effects are not a repair strategy.
 
 ## DESIGN.md and tokens
 
-DESIGN.md (an open format from Google Labs, currently alpha) pairs machine-readable tokens in YAML front matter with prose explaining why they exist. Treat it as optional and unstable: do not make it a hard dependency, and do not adopt the full schema on a project that has not.
+DESIGN.md (an open format from Google Labs, currently alpha) may pair machine-readable tokens with prose explaining why they exist. Treat it as optional and unstable; do not make it a hard dependency on projects that do not use it.
 
-- Code is authoritative for token values. If the project already defines tokens (a theme file, CSS variables, a Tailwind theme), DESIGN.md points to them rather than repeating them. Two editable copies of a value will drift.
-- If the project's DESIGN.md uses the Google format and the tooling is available, validate it after editing with the cross-platform CLI entrypoint: `npx -p @google/design.md designmd lint DESIGN.md`. The tool can also export tokens to Tailwind or DTCG formats; use that instead of hand-syncing.
-- Keep it short: identity, where tokens and components live, layout and density principles, interaction and motion rules, accessibility rules, and a few anti-patterns specific to the product. Leave out per-screen specs.
-- Each line should change what an agent does. If removing it would not change behavior, leave it out.
+- Code is authoritative for token values. When tokens already live in a theme file, CSS variables, or framework config, DESIGN.md points to that source rather than becoming a second editable copy.
+- If the project's DESIGN.md uses the Google format and the tooling is available, validate it after editing with the cross-platform entrypoint: `npx -p @google/design.md designmd lint DESIGN.md`.
+- Keep DESIGN.md short: identity, token/component sources, layout/density principles, interaction/motion rules, accessibility rules, and project-specific anti-patterns. Leave out per-screen specifications and transient decisions.
+- Each line must change what an implementing agent does. If removing a line would not alter behavior, remove it.
+
+Reference:
+https://github.com/google-labs-code/design.md
