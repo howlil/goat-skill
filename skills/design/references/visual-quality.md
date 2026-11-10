@@ -37,6 +37,6 @@ Fix in this order: hierarchy, composition, consistency, and only then effects. E
 DESIGN.md (an open format from Google Labs, currently alpha) pairs machine-readable tokens in YAML front matter with prose explaining why they exist. Treat it as optional and unstable: do not make it a hard dependency, and do not adopt the full schema on a project that has not.
 
 - Code is authoritative for token values. If the project already defines tokens (a theme file, CSS variables, a Tailwind theme), DESIGN.md points to them rather than repeating them. Two editable copies of a value will drift.
-- If the project's DESIGN.md uses the Google format and the tooling is available, validate it after editing: `npx @google/design.md lint DESIGN.md`. The tool can also export tokens to Tailwind or DTCG formats; use that instead of hand-syncing.
+- If the project's DESIGN.md uses the Google format and the tooling is available, validate it after editing with the cross-platform CLI entrypoint: `npx -p @google/design.md designmd lint DESIGN.md`. The tool can also export tokens to Tailwind or DTCG formats; use that instead of hand-syncing.
 - Keep it short: identity, where tokens and components live, layout and density principles, interaction and motion rules, accessibility rules, and a few anti-patterns specific to the product. Leave out per-screen specs.
 - Each line should change what an agent does. If removing it would not change behavior, leave it out.

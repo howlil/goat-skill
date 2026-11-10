@@ -43,7 +43,7 @@ No wrapper without a responsibility. No second button, input, dialog, or modal p
 
 ## 4. Architecture and state
 
-Organize by feature and responsibility. Follow the project's existing structure and do not migrate it unless asked. Do not create empty layers. Cross-feature imports go through the feature's public API.
+Organize by feature and responsibility. Follow the project's existing structure and do not migrate it unless asked. Do not create empty layers. Preserve the project's existing import boundaries. If the codebase already exposes feature public APIs, keep cross-feature imports through them; do not introduce a barrel or public-API layer solely to satisfy this skill.
 
 Give each piece of state one authoritative owner:
 
