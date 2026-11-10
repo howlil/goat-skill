@@ -29,8 +29,12 @@ goat-skill/
 │   └── design/
 │       ├── SKILL.md
 │       └── references/
+│           ├── anti-slop.md
 │           ├── examples.md
+│           ├── hardening.md
+│           ├── layout.md
 │           ├── motion.md
+│           ├── stress.md
 │           ├── ux.md
 │           └── visual-quality.md
 ├── .claude-plugin/
@@ -75,16 +79,22 @@ Core rules:
 - one authoritative owner per state;
 - native/accessibility-first interaction;
 - explicit loading/empty/error/recovery behavior;
-- product-specific visual hierarchy before effects;
+- product-priority layout, grouping, spacing rhythm, and responsive transformation;
+- product-specific visual direction without style blacklists or template defaults;
 - purposeful, interruptible, reduced-motion-aware animation;
+- realistic stress testing and production UI hardening;
 - verification in proportion to the change;
 - report only what was actually observed.
 
 References:
 
+- [Layout and composition](skills/design/references/layout.md)
+- [Anti-slop and visual specificity](skills/design/references/anti-slop.md)
 - [UX flows and states](skills/design/references/ux.md)
 - [Motion engineering](skills/design/references/motion.md)
 - [Visual quality and design system](skills/design/references/visual-quality.md)
+- [UI stress testing](skills/design/references/stress.md)
+- [UI hardening](skills/design/references/hardening.md)
 - [Worked examples](skills/design/references/examples.md)
 
 Canonical source: [`skills/design/SKILL.md`](skills/design/SKILL.md).
@@ -124,7 +134,7 @@ The validator keeps these synchronized:
 - Codex repo marketplace category/display name;
 - canonical skill layout and referenced Markdown files.
 
-Current development version: **0.3.0**.
+Current development version: **0.4.0**.
 
 ## Validate
 
@@ -181,7 +191,7 @@ Still requires native runtime evidence before claiming multi-host verification:
 - Codex discovers `$product` and `$design`;
 - Agy discovers `/product` and `/design`;
 - actual agent sessions exercise Product Direct / Shape / Discover / Blocked;
-- actual frontend sessions exercise Design Refine / Build / Audit and conditional UX / motion / visual references.
+- actual frontend sessions exercise Design Refine / Build / Audit plus conditional layout / specificity / stress / hardening references.
 
 ## Adding a skill later
 

@@ -8,7 +8,9 @@ Never reuse names, paths, findings, or decisions from these examples. A real rep
 1. Small refine
 2. Build with reuse decisions
 3. Audit
-4. The failure to avoid
+4. Layout correction
+5. Stress audit
+6. The failure to avoid
 
 ## 1. Small refine
 
@@ -51,6 +53,33 @@ Not verified: screen-reader announcements (no assistive technology available).
 
 Why it works: each finding has a location, something observed, and a fix, ordered by user impact, with no edits made.
 
-## 4. The failure to avoid
+## 4. Layout correction
 
-A request to show a pending state on one button came back as a new shared button primitive, a motion preset module, a restructured settings folder, and a long report claiming everything was verified, while nothing had been run. If a change would not alter what the user asked for, leave it out; if a check did not run, say so.
+Request: "The project page feels like a wall of equal cards. Improve the hierarchy without redesigning the app."
+
+```
+Done: the primary project status and next action now lead the page; related metadata is grouped by proximity and the two supporting sections keep the existing card primitive.
+Reused: existing PageSection, Card, spacing tokens | Created: none
+Verified: the primary -> supporting reading order remains clear at desktop and narrow width; no route or interaction changed.
+Not verified: localized copy longer than the current English fixtures.
+Adjacent findings: none.
+```
+
+Why it works: the change fixes reading order and grouping instead of replacing the visual identity or deleting cards just because cards are common.
+
+## 5. Stress audit
+
+Request: "Stress-test the member row. Do not redesign it."
+
+```
+1. [high] member-row.tsx:58 - a valid long organization name wraps into the action group at the narrow supported width. Observed with the longest organization name allowed by the fixture schema. Fix: let the text region shrink/wrap while keeping the action group stable.
+2. [medium] member-row.tsx:72 - when the optional role is absent, the separator remains visible. Fix: render the separator with the optional value.
+Held up: empty avatar, one-character display name, four-digit member count.
+Not verified: RTL; the product does not currently declare RTL support.
+```
+
+Why it works: the inputs are plausible or contract-backed, the audit names what held up, and it fixes the structural cause rather than special-casing the sample.
+
+## 6. The failure to avoid
+
+A request to show a pending state on one button came back as a new shared button primitive, a motion preset module, a restructured settings folder, four visual references loaded for no reason, and a long report claiming everything was verified while nothing had run. If a change would not alter what the user asked for, leave it out; load only the references that change a decision; if a check did not run, say so.

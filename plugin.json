@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "gs",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Portable software-engineering agent skills for Codex, Claude Code, and Antigravity.",
   "author": {
     "name": "howlil",
@@ -20,7 +20,7 @@
       "interface": {
         "displayName": "Goat Skill",
         "shortDescription": "Product + frontend skills",
-        "longDescription": "Portable software-engineering skills for coding agents: shape product behavior with evidence and acceptance, then build or audit frontend UI with reuse-first architecture, accessible interaction, purposeful motion, and honest verification.",
+        "longDescription": "Portable software-engineering skills for coding agents: shape product behavior, then build or audit frontend UI with reuse-first architecture, deliberate layout, product-specific visual direction, accessible interaction, realistic stress testing, and honest verification.",
         "developerName": "howlil",
         "category": "Developer Tools",
         "capabilities": [
@@ -29,12 +29,14 @@
           "Evidence-based discovery",
           "Frontend implementation",
           "UI architecture and audit",
-          "Accessible interaction"
+          "Layout and responsive design",
+          "Accessible interaction",
+          "UI robustness and stress testing"
         ],
         "defaultPrompt": [
           "Shape this feature into the smallest complete behavior and acceptance criteria.",
-          "Build this frontend change by reusing existing components, states, tokens, and interaction patterns.",
-          "Audit this UI for accessibility, architecture, visual consistency, and unverified behavior without changing it."
+          "Build this frontend change with reuse-first layout, interaction, visual-system, and robustness checks.",
+          "Audit this UI for architecture, accessibility, visual specificity, and realistic edge-case failures."
         ]
       }
     }
