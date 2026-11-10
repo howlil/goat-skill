@@ -1,7 +1,7 @@
 # Goat Skill — repository instructions
 
 ## Purpose
-Maintain one portable library of software-engineering agent skills. The canonical library currently includes the `product` skill; add others only on explicit request.
+Maintain one portable library of software-engineering agent skills. The canonical library currently includes `product` and `design`; add others only on explicit request.
 
 ## Structure
 - `skills/<name>/SKILL.md`: canonical instructions; optional resources live within the same skill.
@@ -19,6 +19,7 @@ Maintain one portable library of software-engineering agent skills. The canonica
 
 ## Boundaries
 - Root `plugin.json` is the portable source of truth; compatibility manifests may mirror metadata but never skill instructions.
+- `product` owns product scope and acceptance; `design` implements or audits frontend behavior without changing product scope.
 - Do not create extra skills, placeholders, MCP servers, hooks, agents, or runtime dependencies without a requirement.
 - Do not duplicate canonical skill content into host-specific directories.
 - Use the Agent Skills specification for required skill frontmatter and relative resource paths.

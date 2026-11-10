@@ -1,6 +1,6 @@
 {
   "name": "gs",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Portable software-engineering agent skills for Codex, Claude Code, and Antigravity.",
   "author": {
     "name": "howlil"
