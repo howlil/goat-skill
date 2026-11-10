@@ -2,5 +2,36 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "gs",
   "version": "0.2.0",
-  "description": "Portable software-engineering agent skills for Codex, Claude Code, and Antigravity."
+  "description": "Portable software-engineering agent skills for Codex, Claude Code, and Antigravity.",
+  "author": {
+    "name": "howlil",
+    "url": "https://github.com/howlil"
+  },
+  "repository": "https://github.com/howlil/goat-skill",
+  "keywords": [
+    "software-engineering",
+    "product-design",
+    "agent-skills"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Goat Skill",
+        "shortDescription": "Product thinking for agents",
+        "longDescription": "Reusable product-scoping skill for coding agents. Choose Direct, Shape, or Discover; define observable acceptance; and block unsafe irreversible assumptions.",
+        "developerName": "howlil",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Product scoping",
+          "Acceptance criteria",
+          "Evidence-based discovery"
+        ],
+        "defaultPrompt": [
+          "Shape this feature into the smallest complete behavior and acceptance criteria.",
+          "Decide whether this request is Direct, Shape, or Discover before implementation.",
+          "Research whether this feature is worth building and separate evidence from assumptions."
+        ]
+      }
+    }
+  }
 }
