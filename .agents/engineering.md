@@ -16,6 +16,7 @@ No runtime or persisted user state. All manifests share the same plugin name and
 
 ## Verification
 Local: `python3 scripts/validate.py`; CI: same command on push/PR.
+Static validation also enforces required Codex marketplace policy/category metadata.
 Host smoke checks are pending: `claude plugin validate .` and `agy plugin validate --strict .`.
 A passing static check is not proof of plugin installation or working skill behavior.
 

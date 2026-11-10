@@ -36,6 +36,8 @@ goat-skill/
 python3 scripts/validate.py
 ```
 
+The static validator also enforces the required Codex marketplace install/auth policy and category metadata.
+
 Once you have installed the respective clients, use their native validation commands:
 
 ```bash

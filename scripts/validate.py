@@ -13,6 +13,21 @@ MANIFESTS = [
     ".antigravity-plugin/plugin.json",
 ]
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
+CODEX_CATEGORIES = {
+    "Productivity",
+    "Creativity",
+    "Developer Tools",
+    "Business & Operations",
+    "Data & Analytics",
+    "Communication",
+    "Education & Research",
+    "Security",
+    "Finance",
+    "Healthcare",
+    "Travel",
+    "Entertainment",
+    "Other",
+}
 
 
 def fail(message: str) -> None:
@@ -50,7 +65,8 @@ def check_skill(skill_dir: Path) -> None:
     description = fields.get("description", "")
     if description in (">", ">-", "|", "|-", ">+", "|+"):
         description = " ".join(
-            line.strip() for line in lines
+            line.strip()
+            for line in lines
             if line.startswith((" ", "\t")) and line.strip()
         )
     if not description or len(description) > 1024:
@@ -70,6 +86,7 @@ def main() -> None:
         isinstance(v, str) and v for v in versions
     ):
         fail("plugin manifests have mismatched name or version")
+
     claude = load_json(".claude-plugin/marketplace.json")
     if not any(
         entry.get("name") == "gs"
@@ -77,13 +94,25 @@ def main() -> None:
         for entry in claude.get("plugins", [])
     ):
         fail("Claude marketplace source is missing or inconsistent")
+
     codex = load_json(".agents/plugins/marketplace.json")
-    if not any(
-        entry.get("name") == "gs"
-        and entry.get("source") == {"source": "local", "path": "./"}
+    codex_entries = [
+        entry
         for entry in codex.get("plugins", [])
-    ):
+        if entry.get("name") == "gs"
+        and entry.get("source") == {"source": "local", "path": "./"}
+    ]
+    if len(codex_entries) != 1:
         fail("Codex local marketplace source is missing or inconsistent")
+    codex_entry = codex_entries[0]
+    if codex_entry.get("policy") != {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL",
+    }:
+        fail("Codex marketplace policy is missing or inconsistent")
+    if codex_entry.get("category") not in CODEX_CATEGORIES:
+        fail("Codex marketplace category is missing or unsupported")
+
     skills = ROOT / "skills"
     if not skills.is_dir():
         fail("skills/ directory missing")
