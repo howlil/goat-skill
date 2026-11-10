@@ -1,16 +1,20 @@
-name: Validate scaffold
+name: Validate plugin
 
 on:
-  push:
   pull_request:
+  push:
+    branches:
+      - master
 
 permissions:
   contents: read
 
 jobs:
   validate:
+    name: Static packaging and skill gate
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
-      - name: Validate manifest metadata and basic skill structure
+      - name: Validate plugin packaging and canonical skills
         run: python3 scripts/validate.py

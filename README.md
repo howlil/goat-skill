@@ -1,82 +1,203 @@
 # Goat Skill
 
-**Portable software-engineering skills for Codex, Claude Code, and Antigravity (Agy).**
+**Portable software-engineering skills for Codex, Claude Code, Antigravity (Agy), and Agent Skills-compatible hosts.**
 
-> **Scaffold only.** There are no authored `SKILL.md` files, functional skills, or published skill releases yet. The repository currently establishes packaging and authoring conventions.
+> **Current development catalog:** `product` + `design`. This branch is not a published plugin release.
 
 ## Design
 
-- **One canonical source:** `skills/<skill-name>/SKILL.md` follows the [Agent Skills specification](https://agentskills.io/specification).
-- **No duplicated skills:** Codex, Claude Code, and Agy consume the same `skills/` folder. Platform-specific files contain distribution metadata only.
-- **Progressive disclosure:** Keep the entrypoint focused. Add `references/`, `scripts/`, or `assets/` inside a skill only when needed.
-- **No premature runtime:** No hooks, MCP servers, Node.js dependency, generated variants, or skills until their requirements exist.
+- **One canonical skill source:** every skill lives at `skills/<skill-name>/SKILL.md`.
+- **Portable first:** root `plugin.json` is the canonical Agent Plugins manifest.
+- **Compatibility without instruction duplication:** `.codex-plugin/plugin.json` points to the same `./skills/` directory.
+- **Progressive disclosure:** references live inside the skill and load only when needed.
+- **Clear ownership:** `product` decides product behavior/scope; `design` implements or audits frontend behavior without redefining product acceptance.
+- **No premature runtime:** no hooks, MCP server, runtime dependency, generated host-specific skill copies, or extra agent layer.
 
 ## Repository layout
 
 ```text
 goat-skill/
-├── skills/                           # Canonical skills; currently empty
-├── plugin.json                       # Portable Agent Plugins / Codex
+├── plugin.json
+├── .codex-plugin/
+│   └── plugin.json
+├── skills/
+│   ├── product/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │       ├── discover.md
+│   │       └── examples.md
+│   └── design/
+│       ├── SKILL.md
+│       └── references/
+│           ├── examples.md
+│           ├── motion.md
+│           ├── ux.md
+│           └── visual-quality.md
 ├── .claude-plugin/
-│   ├── plugin.json                   # Claude Code identity
-│   └── marketplace.json              # Claude marketplace catalog
-├── .antigravity-plugin/plugin.json   # Agy-specific overlay
-├── .agents/plugins/marketplace.json  # Codex repo marketplace
-├── scripts/validate.py               # Lightweight metadata validation
+│   ├── plugin.json
+│   └── marketplace.json
+├── .antigravity-plugin/plugin.json
+├── .agents/plugins/marketplace.json
+├── scripts/validate.py
 ├── .github/workflows/validate.yml
 ├── AGENTS.md
 └── README.md
 ```
 
-## Validate the scaffold
+## Skill catalog
+
+### `product`
+
+Turns product uncertainty into the smallest verifiable contract an implementer can build without inventing requirements.
+
+Modes:
+
+- **Direct** — behavior and done are already clear.
+- **Shape** — outcome is clear but behavior, scope, or acceptance is underspecified.
+- **Discover** — whether/what to build depends on evidence.
+- **Blocked** — an unresolved choice is external, expensive, irreversible, privacy-sensitive, destructive, or otherwise unsafe to guess.
+
+Canonical source: [`skills/product/SKILL.md`](skills/product/SKILL.md).
+
+### `design`
+
+Frontend architect and design engineer for an existing codebase. It builds, refines, and audits UI while preserving the product contract.
+
+Modes:
+
+- **Refine** — smallest fix or improvement to an existing surface.
+- **Build** — new screen, feature UI, or component; trace flow, reuse, implement, verify.
+- **Audit** — reconstruct behavior and report evidence-backed findings; change nothing unless asked.
+
+Core rules:
+
+- search and reuse before creating components;
+- one authoritative owner per state;
+- native/accessibility-first interaction;
+- explicit loading/empty/error/recovery behavior;
+- product-specific visual hierarchy before effects;
+- purposeful, interruptible, reduced-motion-aware animation;
+- verification in proportion to the change;
+- report only what was actually observed.
+
+References:
+
+- [UX flows and states](skills/design/references/ux.md)
+- [Motion engineering](skills/design/references/motion.md)
+- [Visual quality and design system](skills/design/references/visual-quality.md)
+- [Worked examples](skills/design/references/examples.md)
+
+Canonical source: [`skills/design/SKILL.md`](skills/design/SKILL.md).
+
+## Ownership boundary
+
+```text
+product
+  ↓ observable behavior / acceptance / scope
+design
+  ↓ frontend implementation / interaction / visual system / audit
+repo code + tests + running UI
+  ↓ evidence
+report only what was actually verified
+```
+
+`design` may make a reversible implementation assumption when necessary, but it does not silently change product scope or acceptance.
+
+## Invocation
+
+| Skill | Claude Code | Codex | Antigravity |
+| --- | --- | --- | --- |
+| Product | `/gs:product` | `$product` | `/product` |
+| Design | `/gs:design` | `$design` | `/design` |
+
+`gs` is the plugin identity; `product` and `design` are portable Agent Skill names. Literal invocation syntax remains host-native.
+
+## Manifest strategy
+
+Root `plugin.json` is the portable source of truth. The Codex compatibility manifest contains packaging metadata plus `skills: "./skills/"` but never duplicates skill instructions.
+
+The validator keeps these synchronized:
+
+- plugin name, version, and description;
+- author and repository;
+- OpenAI interface metadata;
+- Codex repo marketplace category/display name;
+- canonical skill layout and referenced Markdown files.
+
+Current development version: **0.3.0**.
+
+## Validate
 
 ```bash
 python3 scripts/validate.py
 ```
 
-Once you have installed the respective clients, use their native validation commands:
+The PR gate runs the same command. Successful static validation proves package structure and metadata consistency; it does **not** prove native client discovery or model behavior.
+
+When clients are installed, run native checks where available:
 
 ```bash
 claude plugin validate .
 agy plugin validate --strict .
+
+codex plugin marketplace add howlil/goat-skill
+codex plugin marketplace list
 ```
 
-These host-specific checks have **not** yet been run as part of the repository scaffold.
+## Install after release
 
-## Install after the first skill release
-
-These commands are **future installation instructions**, not a claim that a usable skill is available now:
+These are future installation instructions, not a claim that the current branch is published:
 
 ```bash
-# skills.sh / Skills CLI — portable skill installation
+# Skills CLI / skills.sh
 npx skills add howlil/goat-skill
 
-# Codex — register the repository marketplace
+# Codex
 codex plugin marketplace add howlil/goat-skill
 
-# Claude Code — register marketplace and install plugin
+# Claude Code
 claude plugin marketplace add howlil/goat-skill
-claude plugin install goat-skill@goat-skill-marketplace
+claude plugin install gs@goat-skill-marketplace
 
-# Antigravity CLI — install GitHub plugin bundle
+# Antigravity CLI
 agy plugin install https://github.com/howlil/goat-skill
 ```
 
+## Verification boundary
+
+Static CI verifies:
+
+- portable manifest schema and identity;
+- Codex compatibility fallback and canonical `./skills/` path;
+- cross-host manifest consistency;
+- OpenAI interface metadata constraints;
+- Codex marketplace policy/category/display name;
+- each skill's frontmatter;
+- every referenced Markdown resource.
+
+Still requires native runtime evidence before claiming multi-host verification:
+
+- Claude discovers `/gs:product` and `/gs:design`;
+- Codex discovers `$product` and `$design`;
+- Agy discovers `/product` and `/design`;
+- actual agent sessions exercise Product Direct / Shape / Discover / Blocked;
+- actual frontend sessions exercise Design Refine / Build / Audit and conditional UX / motion / visual references.
+
 ## Adding a skill later
 
-Each skill must live at `skills/<skill-name>/SKILL.md` with a valid YAML frontmatter `name` (equal to the directory name) and `description` (what it does and when to use it). Additional resources remain inside that skill directory. Do not write placeholder skills or duplicate platform-specific copies.
+Each skill must live at `skills/<skill-name>/SKILL.md`. Keep reusable references, scripts, and assets under that skill directory. Do not copy skill instructions into host-specific plugin folders.
 
-Run `python3 scripts/validate.py`, then test skill discovery and relevant behaviors in actual target clients before describing it as supported. Release versions in all three plugin manifests must stay in sync; bump them when publishing a new plugin release.
+Run `python3 scripts/validate.py` after every packaging or skill-layout change. Test native discovery before describing a host as verified.
 
 ## Licensing
 
-A license has not been selected. Choose and add a `LICENSE` file before public redistribution; a public GitHub repository does not automatically grant a reuse license.
+A license has not been selected. Choose and add a `LICENSE` file before public redistribution; a public GitHub repository does not automatically grant reuse rights.
 
 ## References
 
 - [Agent Skills specification](https://agentskills.io/specification)
 - [Skills CLI / skills.sh](https://skills.sh/docs)
-- [Codex plugin packaging](https://developers.openai.com/plugins/build/plugins)
+- [OpenAI plugin packaging](https://developers.openai.com/plugins/build/plugins)
 - [Claude Code plugins](https://code.claude.com/docs/en/plugins)
 - [Claude plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
 - [Antigravity plugin packaging](https://antigravity.google/docs/build-plugins)

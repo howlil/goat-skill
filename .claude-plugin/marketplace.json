@@ -7,7 +7,7 @@
   "description": "Portable SWE skills by howlil.",
   "plugins": [
     {
-      "name": "goat-skill",
+      "name": "gs",
       "source": {
         "source": "github",
         "repo": "howlil/goat-skill"
