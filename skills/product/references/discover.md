@@ -45,4 +45,4 @@ What would change it: <the result that flips the recommendation>
 Next smallest step: <only if evidence is still short>
 ```
 
-Keep Evidence and Assumptions visibly separate. If you found nothing, write "no evidence found" instead of filling the gap with plausible user stories, statistics, or quotes. If the recommendation is to build, finish with a Shape-mode contract (SKILL.md section 6).
+Keep Evidence and Assumptions visibly separate. If you found nothing, write "no evidence found" instead of filling the gap with plausible user stories, statistics, or quotes. If the recommendation is to build, use Shape to describe the smallest complete behavior and acceptance.

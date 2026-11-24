@@ -2,6 +2,6 @@
   "$schema": "https://antigravity.google/schemas/v1/plugin.json",
   "name": "gs",
   "displayName": "Goat Skill",
-  "version": "0.4.0",
-  "description": "Portable software-engineering agent skills for Codex, Claude Code, and Antigravity."
+  "version": "0.5.0",
+  "description": "Portable engineering skills for product intent, public interfaces, and internal implementation."
 }

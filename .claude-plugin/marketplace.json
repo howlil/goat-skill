@@ -12,7 +12,7 @@
         "source": "github",
         "repo": "howlil/goat-skill"
       },
-      "description": "Portable software-engineering agent skills for Codex, Claude Code, and Antigravity."
+      "description": "Portable engineering skills for product intent, public interfaces, and internal implementation."
     }
   ]
 }

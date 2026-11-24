@@ -18,6 +18,7 @@ MANIFESTS = [
 PLUGIN_NAME = "gs"
 PLUGIN_REPOSITORY = "https://github.com/howlil/goat-skill"
 PORTABLE_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
+EXPECTED_SKILLS = {"product", "frontend", "backend"}
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 CODEX_CATEGORIES = {
     "Productivity",
@@ -229,11 +230,14 @@ def main() -> None:
         fail("skills/ directory missing")
 
     entries = sorted(path for path in skills.iterdir() if path.is_dir())
+    actual_names = {entry.name for entry in entries}
+    if actual_names != EXPECTED_SKILLS:
+        missing = ", ".join(sorted(EXPECTED_SKILLS - actual_names)) or "none"
+        extra = ", ".join(sorted(actual_names - EXPECTED_SKILLS)) or "none"
+        fail(f"skills/ catalog mismatch (missing: {missing}; extra: {extra})")
+
     for item in entries:
         check_skill(item)
-
-    if not entries:
-        fail("at least one canonical skill is required")
 
     print(
         "OK: portable + Codex compatibility manifests consistent; "
