@@ -124,12 +124,22 @@ def check_product(workspace, response):
     )
 
 
+def check_popup(workspace, _response):
+    try:
+        from popup_menu import check_popup_menu
+    except ModuleNotFoundError as exc:
+        if exc.name != "playwright":
+            raise
+        raise RuntimeError("Install Playwright with python3 -m pip install playwright.") from exc
+    return check_popup_menu(workspace)
+
+
 @dataclass(frozen=True)
 class Case:
     file: str
     skill: str | None
     request: str
-    check: Callable[[Path, str], bool]
+    check: Callable[[Path, str], bool | dict[str, bool]]
 
 
 CASES = {
@@ -166,6 +176,26 @@ ROUTING_CASES = {
     ),
 }
 
+POPUP_CASE = Case(
+    "action-menu.html", "frontend",
+    "Build the Report actions popup in action-menu.html using the existing trigger, Details button, "
+    "and status region. Keep the implementation in this file. The menus start closed.\n"
+    "- Use accessible menu and menuitem semantics. Name the main menu Report actions and the submenu Export. "
+    "Expose the expanded state of each trigger. In order, the main actions are Rename, Export, and Archive. "
+    "Export contains CSV and JSON in that order.\n"
+    "- Move DOM focus to the active item. Open the main menu by click or Enter and focus Rename. Up and Down wrap within the open menu. "
+    "Open Export with ArrowRight or click and focus CSV. ArrowLeft or Escape closes the submenu and "
+    "returns focus to Export. Escape closes the main menu and returns focus to Report actions.\n"
+    "- Archive stays keyboard-focusable with aria-disabled and shows 'Archiving is unavailable for this report.' "
+    "Keep the menu open and the status and focus unchanged when Archive receives Enter or Space.\n"
+    "- Activating Rename, CSV, or JSON closes both menus and returns focus to Report actions. "
+    "Show respectively 'Rename selected.', 'Exported CSV.', or 'Exported JSON.' in the existing status region. "
+    "These actions only update the status.\n"
+    "- Clicking Details from an open submenu closes both menus and leaves focus on Details. "
+    "Keep both open popups within the viewport at 320px width.",
+    check_popup,
+)
+
 
 def prepare(case, workspace):
     shutil.copyfile(ROOT / "fixtures" / case.file, workspace / case.file)
@@ -174,9 +204,12 @@ def prepare(case, workspace):
 
 def score(case, workspace, response=""):
     try:
-        return case.check(workspace, response)
+        result = case.check(workspace, response)
     except (OSError, ValueError, subprocess.TimeoutExpired):
-        return False
+        result = False
+    if isinstance(result, dict):
+        return {"passed": all(result.values()), "checks": result}
+    return {"passed": result}
 
 
 def attempt(label, case, model):
@@ -222,7 +255,7 @@ def attempt(label, case, model):
             for path in SKILL_PATH.findall(item["command"])
         }
         return {
-            "passed": score(case, workspace, messages[-1] if messages else ""),
+            **score(case, workspace, messages[-1] if messages else ""),
             "usage": completed[-1].get("usage", {}),
             "elapsed_seconds": round(elapsed, 3),
             "skill_files_in_commands": sorted(skill_files),
@@ -233,18 +266,23 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", required=True, help="Use the same Codex model for both runs.")
     selection = parser.add_mutually_exclusive_group()
-    selection.add_argument("--case", choices=(*CASES, *ROUTING_CASES), help="Run a single pair.")
+    available = CASES | ROUTING_CASES | {"popup": POPUP_CASE}
+    selection.add_argument("--case", choices=available, help="Run a single pair.")
     selection.add_argument("--routing", action="store_true", help="Run the automatic selection cases.")
     args = parser.parse_args()
 
     cases = ROUTING_CASES if args.routing else CASES
     if args.case:
-        cases = {args.case: (CASES | ROUTING_CASES)[args.case]}
+        cases = {args.case: available[args.case]}
     for name, case in cases.items():
         with tempfile.TemporaryDirectory(prefix="goat-fixture-") as directory:
             workspace = Path(directory)
             prepare(case, workspace)
-            if score(case, workspace):
+            try:
+                baseline = score(case, workspace)
+            except RuntimeError as exc:
+                raise SystemExit(f"{name}: {exc}") from exc
+            if baseline["passed"]:
                 raise SystemExit(f"{name} fixture already passes before agent changes")
 
     for index, (name, case) in enumerate(cases.items()):

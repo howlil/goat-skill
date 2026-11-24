@@ -86,6 +86,16 @@ The default eval runs a UI label fix, a CLI error contract change, and a databas
 
 Add `--routing` to compare a mechanical edit and an ambiguous deletion request. The skill-enabled runs make all three skills available and let Codex choose what to use. Results include first-attempt correctness, token usage, elapsed time, and skill file paths visible in successful shell commands.
 
+Run `--case popup` to compare one nested action menu build with and without `gs:frontend`. The result includes separate Chromium checks for keyboard navigation, submenu focus and dismissal, status feedback, the unavailable action, pointer behavior, and a 320px viewport.
+
+```bash
+python3 -m pip install playwright
+python3 -m playwright install chromium
+python3 evals/run.py --model gpt-5.4-mini --case popup
+```
+
+Set `GOAT_POPUP_CHROMIUM` to a system Chromium executable if you already have one.
+
 ## Licensing
 
 Distribution license selection is pending.
