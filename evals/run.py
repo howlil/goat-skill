@@ -69,36 +69,40 @@ def run_python(workspace, *args):
 
 
 def check_cli(workspace):
-    (workspace / "example.json").write_text('[{}, {}, {}]', encoding="utf-8")
-    (workspace / "invalid.json").write_text('not JSON', encoding="utf-8")
-    good = run_python(workspace, "report.py", "example.json")
-    if good.returncode or good.stderr or json.loads(good.stdout) != {"count": 3}:
-        return False
-    for name in ("missing.json", "invalid.json"):
-        bad = run_python(workspace, "report.py", name)
-        if bad.returncode != 2 or bad.stdout or not bad.stderr.strip():
+    with tempfile.TemporaryDirectory(prefix="goat-cli-inputs-") as directory:
+        inputs = Path(directory)
+        (inputs / "example.json").write_text('[{}, {}, {}]', encoding="utf-8")
+        (inputs / "invalid.json").write_text('not JSON', encoding="utf-8")
+        good = run_python(workspace, "report.py", str(inputs / "example.json"))
+        if good.returncode or good.stderr or json.loads(good.stdout) != {"count": 3}:
             return False
+        for name in ("missing.json", "invalid.json"):
+            bad = run_python(workspace, "report.py", str(inputs / name))
+            if bad.returncode != 2 or bad.stdout or not bad.stderr.strip():
+                return False
     return True
 
 
 def check_retry(workspace):
-    result = run_python(workspace, "-c", """
+    with tempfile.TemporaryDirectory(prefix="goat-retry-data-") as directory:
+        result = run_python(workspace, "-c", """
 import runpy
 import sqlite3
+import sys
 from contextlib import closing
 
 delivery = runpy.run_path("delivery.py")
-with closing(sqlite3.connect("inventory.db")) as db:
+with closing(sqlite3.connect(sys.argv[1])) as db:
     delivery["initialize"](db)
     delivery["apply_delivery"](db, "a", 4)
     assert db.execute("SELECT quantity FROM inventory").fetchone() == (4,)
-with closing(sqlite3.connect("inventory.db")) as db:
+with closing(sqlite3.connect(sys.argv[1])) as db:
     delivery["apply_delivery"](db, "a", 9)
     assert db.execute("SELECT quantity FROM inventory").fetchone() == (4,)
     delivery["apply_delivery"](db, "b", 3)
     assert db.execute("SELECT quantity FROM inventory").fetchone() == (7,)
     assert db.execute("SELECT message_id FROM receipts ORDER BY message_id").fetchall() == [("a",), ("b",)]
-""")
+""", str(Path(directory) / "inventory.db"))
     return result.returncode == 0
 
 
