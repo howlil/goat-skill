@@ -10,7 +10,7 @@ Use when adding navigation, a multi-step flow, or when an interaction question i
 
 ## Model the flow only as far as needed
 
-Write the flow as a short table of trigger, state, outcome for the surfaces involved. Draw a sitemap only when the navigation structure changes. Stop once the next implementation decision is clear.
+Use a short table of triggers, states, and outcomes for the affected surfaces. Draw only the affected transitions when a material branch, prerequisite, or recovery path is hard to follow in the table. Use a sitemap only when the navigation structure changes. Stop once the next implementation decision is clear.
 
 | Trigger | State | Outcome |
 |---|---|---|
