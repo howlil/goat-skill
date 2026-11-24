@@ -21,8 +21,8 @@ Read the request and its constraints, then inspect the relevant issue, existing 
 ## Shape the work
 
 - When evidence leaves a decision that would change the build, ask the highest-impact question whose prerequisites are settled. Stop asking once scope and acceptance are clear enough to build.
-- State who gets what outcome, or what failure stops happening.
-- Describe the smallest complete behavior from trigger to observable result. Split large work into independently useful slices when a smaller slice can achieve the outcome.
+- State who needs what outcome or what failure stops. If a proposed solution obscures the user's job, identify what triggers the need and how they handle it today, if known.
+- Describe the smallest complete path from trigger to observable result. Include the starting state in behavior and acceptance when it changes the result. For an existing product, cover only the changed path and states it touches. Split large work into independently useful slices.
 - Cover material failure and recovery, binding constraints, and adjacent scope an implementer might reasonably include.
 - Make acceptance observable through the public entry point. Cover the main path and meaningful failure or recovery. Use varied examples where behavior depends on data. State the intent if a literal check could be passed by special-casing its inputs.
 - Ask what was observed for each material acceptance condition. Keep unknowns visible and distinguish evidence from assumptions.
