@@ -14,7 +14,7 @@ Own the public interface and observable behavior for people, programs, and other
 3. Reuse interface patterns and primitives. Give presentation and interaction state one owner. Translate domain outcomes at the public boundary.
 4. Resolve feasible interface choices with the existing conventions. Bring in Product only when the intended outcome or acceptance needs a decision. Bring in Backend when the internals need to change to fulfill the contract.
 
-For a review, report observed findings by impact. For a change, exercise the public entry point with realistic inputs and verify relevant failure behavior and compatibility. Report what was observed and any material gaps.
+For a review, trace the changed action through its result and the next available action. Report breaks in intended or preserved behavior with evidence, ordered by impact. For a change, exercise the public entry point with realistic inputs and assert what the consumer can observe or do, including relevant failures and compatibility. For a bug with a cheap, faithful check, show it failing before the fix and passing afterward. Report what was observed and any material gaps.
 
 For a local tweak, inspect the affected surface and use its closest faithful check. Use a running UI when the rendered result or interaction needs direct proof. Check representative widths when layout or responsiveness changes.
 
