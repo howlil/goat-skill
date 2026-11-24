@@ -16,10 +16,11 @@ Own the intended outcome, scope, observable behavior, and acceptance. Leave inte
 | Evidence could change whether to build it or whom it serves | **Discover.** Read `references/discover.md` and investigate the question most likely to change the decision. |
 | A costly, irreversible, externally consequential, or authorization-sensitive choice is unresolved | **Blocked.** Ask for the missing decision and pause the dependent action. Keep any independent work moving. |
 
-Read the request and its constraints, then inspect the relevant issue, existing behavior, tests, and product decisions. Treat current behavior as a baseline. Ground claims about users, demand, metrics, and feasibility in evidence. Record a material reversible assumption with the condition that would change it. Ask concise questions if a consequential answer remains unavailable.
+Read the request and its constraints, then inspect the relevant issue, existing behavior, tests, and product decisions. Treat current behavior as a baseline. Ground claims about users, demand, metrics, and feasibility in evidence. Record a material reversible assumption with the condition that would change it.
 
 ## Shape the work
 
+- When evidence leaves a decision that would change the build, ask the highest-impact question whose prerequisites are settled. Stop asking once scope and acceptance are clear enough to build.
 - State who gets what outcome, or what failure stops happening.
 - Describe the smallest complete behavior from trigger to observable result. Split large work into independently useful slices when a smaller slice can achieve the outcome.
 - Cover material failure and recovery, binding constraints, and adjacent scope an implementer might reasonably include.
