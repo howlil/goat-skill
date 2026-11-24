@@ -19,6 +19,6 @@ Bring in Frontend when caller-visible inputs, outcomes, errors, or compatibility
 
 ## Match the checks to the risk
 
-Read `references/runtime-changes.md` when the change involves durable writes, concurrency, external effects, operational recovery, or a rollout. Check only the guarantees this change touches. Use operational evidence for operational claims.
+Read `references/runtime-changes.md` when a guarantee about atomicity, concurrency, retries, external effects, compatibility, rollout, or recovery changes or remains unclear. Use operational evidence for operational claims.
 
 For a review, report the reachable behavior, its impact, and the smallest fix direction. For implementation, report the changed behavior and proof observed, including any material verification limit.

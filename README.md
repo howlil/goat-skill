@@ -82,7 +82,9 @@ Use a clean, signed-in Codex CLI profile and the same model for both sides of ea
 python3 evals/run.py --model gpt-5.4-mini
 ```
 
-The eval runs a UI label fix, a CLI error contract change, and a database retry fix in disposable projects. Each case runs once with a skill and once without it. The output records first-attempt pass or fail and token usage. Use `--case ui`, `--case cli`, or `--case retry` to run one pair.
+The default eval runs a UI label fix, a CLI error contract change, and a database retry fix in disposable projects. Each case runs once with a skill and once without it. Use `--case` to run one pair.
+
+Add `--routing` to compare a mechanical edit and an ambiguous deletion request. The skill-enabled runs make all three skills available and let Codex choose what to use. Results include first-attempt correctness, token usage, elapsed time, and skill file paths visible in successful shell commands.
 
 ## Licensing
 

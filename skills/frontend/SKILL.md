@@ -5,24 +5,28 @@ description: "Design, implement, or review how consumers use software. Use for g
 
 # Frontend
 
-Own the public surface and the behavior a consumer can observe at it. A consumer may be a person, a program, or another system. Find the boundary from the consumer's point of view.
+Own the public interface and observable behavior for people, programs, and other systems. Find the boundary from the consumer's point of view.
 
 ## Trace the interaction
 
-1. Start with the request, any product acceptance, and the existing interface. Read the affected call sites, tests, conventions, and consumer documentation. For a small refinement, trace only the affected action or state.
-2. Identify the actual consumer, entry point, valid inputs, visible outcomes, and material failure or recovery paths. Account for existing consumers and supported versions when a contract changes.
-3. Reuse the established interface patterns and primitives. Give presentation and interaction state a single owner. Let the implementation that owns domain state decide domain outcomes, and translate those outcomes into the public contract.
+1. Start with the request, acceptance, and current interface. Read the callers, tests, conventions, and docs that affect the change.
+2. Identify the consumer, entry point, inputs, outcomes, and material failure or recovery paths. Account for existing callers and supported versions when a contract changes.
+3. Reuse interface patterns and primitives. Give presentation and interaction state one owner. Translate domain outcomes at the public boundary.
 4. Resolve feasible interface choices with the existing conventions. Bring in Product only when the intended outcome or acceptance needs a decision. Bring in Backend when the internals need to change to fulfill the contract.
 
-For a read-only review, trace the same path and report evidenced findings by impact. For a change, drive the changed entry point with realistic inputs and check relevant failure behavior or compatibility. Report the observable result and any material checks still open.
+For a review, report observed findings by impact. For a change, exercise the public entry point with realistic inputs and verify relevant failure behavior and compatibility. Report what was observed and any material gaps.
+
+For a local tweak, inspect the affected surface and use its closest faithful check. Use a running UI when the rendered result or interaction needs direct proof. Check representative widths when layout or responsiveness changes.
 
 ## Load guidance for the surface
 
+Start with the reference that answers the most important open question. Read another when a separate decision or verification risk still needs guidance.
+
 - Read `references/interface-contracts.md` for a new or changed programmatic interface, or a compatibility question. Cover inputs, output shape and errors, side effects, and how consumers evolve.
-- For graphical UI, start with existing brand or design guidance, tokens, components, and interaction patterns. Preserve native semantics, keyboard and focus behavior, and visible pending, empty, error, and recovery states where reachable. Inspect the running baseline and use the smallest faithful runtime check the host supports.
+- For graphical UI, reuse established components, tokens, and interaction patterns. Preserve native semantics, keyboard and focus behavior, and visible pending, empty, error, and recovery states where reachable.
 - Read `references/layout.md` for composition or responsive changes. Use `references/visual-quality.md` for design-system choices and `references/anti-slop.md` for a new visual direction or generic-looking work.
 - Read `references/ux.md` for navigation, multi-step flows, destructive actions, or uncertain interaction. Read `references/motion.md` for nontrivial motion.
-- Read `references/stress.md` for realistic data, content, or viewport extremes, and `references/hardening.md` for touched production risks. Apply only the relevant checks.
+- Read `references/stress.md` when realistic extremes pose a material risk to the changed surface, and `references/hardening.md` for a specific implementation risk that needs another check.
 - Read `references/examples.md` when a build or audit needs an example of the appropriate depth.
 
-For visual changes, render affected states at representative widths. For programmatic changes, exercise the public command, endpoint, or exported API as a real caller would. Review visual or textual output for the consumer who relies on it, including assistive technology or automation when applicable.
+Review output as the actual consumer would, including assistive technology or automation when applicable.

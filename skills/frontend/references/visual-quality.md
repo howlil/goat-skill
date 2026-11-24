@@ -52,7 +52,7 @@ Before styling, write a direction in at most six lines:
 - density;
 - one visual principle.
 
-Then run `references/anti-slop.md` before implementation. The direction should be specific enough that replacing only the logo and copy would not make it equally suitable for an unrelated product.
+The direction should express the product's job through its visual choices. If the direction still feels interchangeable, use `references/anti-slop.md`.
 
 Do not create a complete brand system for a feature that only needs a local interface.
 

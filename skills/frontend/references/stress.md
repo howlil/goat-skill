@@ -1,6 +1,6 @@
 # UI stress testing
 
-Use when a surface is data-driven, content-heavy, responsive, localized, or explicitly needs edge-case testing. Also use during an Audit when normal demo data can hide layout or state failures.
+Use when realistic content, data, or environment extremes threaten behavior the change touches. In an audit, use it when normal demo data could hide a meaningful failure.
 
 This is adversarial verification, not a redesign mode.
 

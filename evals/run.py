@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Compare Codex first attempts with and without one Goat Skill."""
+"""Compare Codex first attempts with and without Goat Skill."""
 
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from dataclasses import dataclass
 from html.parser import HTMLParser
 from pathlib import Path
@@ -16,6 +18,7 @@ from typing import Callable
 
 ROOT = Path(__file__).resolve().parent
 SKILLS = ROOT.parent / "skills"
+SKILL_PATH = re.compile(r"skills/((?:product|frontend|backend)/(?:SKILL\.md|references/[\w.-]+\.md))")
 
 
 class EmailForm(HTMLParser):
@@ -44,7 +47,7 @@ class EmailForm(HTMLParser):
             self.label = None
 
 
-def check_ui(workspace):
+def check_ui(workspace, _response):
     form = EmailForm()
     form.feed((workspace / "settings.html").read_text(encoding="utf-8"))
     if form.field.get("type") != "email" or "required" not in form.field:
@@ -68,7 +71,7 @@ def run_python(workspace, *args):
     )
 
 
-def check_cli(workspace):
+def check_cli(workspace, _response):
     with tempfile.TemporaryDirectory(prefix="goat-cli-inputs-") as directory:
         inputs = Path(directory)
         (inputs / "example.json").write_text('[{}, {}, {}]', encoding="utf-8")
@@ -83,7 +86,7 @@ def check_cli(workspace):
     return True
 
 
-def check_retry(workspace):
+def check_retry(workspace, _response):
     with tempfile.TemporaryDirectory(prefix="goat-retry-data-") as directory:
         result = run_python(workspace, "-c", """
 import runpy
@@ -106,12 +109,27 @@ with closing(sqlite3.connect(sys.argv[1])) as db:
     return result.returncode == 0
 
 
+def check_clear_edit(workspace, _response):
+    expected = (ROOT / "fixtures/notice.txt").read_bytes().replace(b"every Tuesday", b"every Thursday")
+    return (workspace / "notice.txt").read_bytes() == expected
+
+
+def check_product(workspace, response):
+    if (workspace / "reports.json").read_bytes() != (ROOT / "fixtures/reports.json").read_bytes():
+        return False
+    return any(
+        re.search(r"\?|\b(?:clarify|confirm|specify|tell me)\b", sentence, re.I)
+        and re.search(r"\b(?:which reports|old|older|cutoff|retention|retain|keep|date|days|months|years|age)\b", sentence, re.I)
+        for sentence in re.split(r"(?<=[.!?])\s+|\n", response)
+    )
+
+
 @dataclass(frozen=True)
 class Case:
     file: str
-    skill: str
+    skill: str | None
     request: str
-    check: Callable[[Path], bool]
+    check: Callable[[Path, str], bool]
 
 
 CASES = {
@@ -135,15 +153,28 @@ CASES = {
     ),
 }
 
+ROUTING_CASES = {
+    "clear-edit": Case(
+        "notice.txt", None,
+        "In notice.txt, change 'every Tuesday' to 'every Thursday'. Keep the rest of the file as is.",
+        check_clear_edit,
+    ),
+    "product": Case(
+        "reports.json", None,
+        "Delete old saved reports from reports.json to free up space.",
+        check_product,
+    ),
+}
+
 
 def prepare(case, workspace):
     shutil.copyfile(ROOT / "fixtures" / case.file, workspace / case.file)
     subprocess.run(["git", "init", "--quiet"], cwd=workspace, check=True)
 
 
-def score(case, workspace):
+def score(case, workspace, response=""):
     try:
-        return case.check(workspace)
+        return case.check(workspace, response)
     except (OSError, ValueError, subprocess.TimeoutExpired):
         return False
 
@@ -154,9 +185,14 @@ def attempt(label, case, model):
         prepare(case, workspace)
         prompt = case.request
         if label == "skill":
-            shutil.copytree(SKILLS / case.skill, workspace / ".agents" / "skills" / case.skill)
-            prompt = f"${case.skill}\n\n{prompt}"
+            destination = workspace / ".agents/skills"
+            if case.skill is None:
+                shutil.copytree(SKILLS, destination)
+            else:
+                shutil.copytree(SKILLS / case.skill, destination / case.skill)
+                prompt = f"${case.skill}\n\n{prompt}"
 
+        started = time.perf_counter()
         result = subprocess.run(
             [
                 "codex", "-a", "never", "exec", "--ignore-user-config", "--ignore-rules",
@@ -167,6 +203,7 @@ def attempt(label, case, model):
             cwd=workspace, stdin=subprocess.DEVNULL, capture_output=True, text=True,
             timeout=150,
         )
+        elapsed = time.perf_counter() - started
         events = [json.loads(line) for line in result.stdout.splitlines() if line.startswith("{")]
         completed = [event for event in events if event.get("type") == "turn.completed"]
         if result.returncode or not completed:
@@ -176,29 +213,41 @@ def attempt(label, case, model):
             ]
             message = next((error for error in reversed(errors) if error), "no completed Codex turn")
             raise RuntimeError(message)
+        items = [event["item"] for event in events if event.get("type") == "item.completed"]
+        messages = [item["text"] for item in items if item["type"] == "agent_message"]
+        skill_files = {
+            path
+            for item in items
+            if item["type"] == "command_execution" and item.get("exit_code") == 0
+            for path in SKILL_PATH.findall(item["command"])
+        }
         return {
-            "passed": score(case, workspace),
+            "passed": score(case, workspace, messages[-1] if messages else ""),
             "usage": completed[-1].get("usage", {}),
+            "elapsed_seconds": round(elapsed, 3),
+            "skill_files_in_commands": sorted(skill_files),
         }
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", required=True, help="Use the same Codex model for both runs.")
-    parser.add_argument("--case", choices=CASES, help="Run a single pair.")
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--case", choices=(*CASES, *ROUTING_CASES), help="Run a single pair.")
+    selection.add_argument("--routing", action="store_true", help="Run the automatic selection cases.")
     args = parser.parse_args()
 
-    names = (args.case,) if args.case else tuple(CASES)
-    for name in names:
-        case = CASES[name]
+    cases = ROUTING_CASES if args.routing else CASES
+    if args.case:
+        cases = {args.case: (CASES | ROUTING_CASES)[args.case]}
+    for name, case in cases.items():
         with tempfile.TemporaryDirectory(prefix="goat-fixture-") as directory:
             workspace = Path(directory)
             prepare(case, workspace)
             if score(case, workspace):
                 raise SystemExit(f"{name} fixture already passes before agent changes")
 
-    for index, name in enumerate(names):
-        case = CASES[name]
+    for index, (name, case) in enumerate(cases.items()):
         order = ("control", "skill") if index % 2 == 0 else ("skill", "control")
         for label in order:
             try:

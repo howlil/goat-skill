@@ -1,6 +1,6 @@
 # UI hardening
 
-Use near the end of a non-trivial Build, or during a production-readiness Audit. It checks whether a correct-looking interface is fragile in implementation.
+Use for an identified implementation risk that needs a focused check, or during a production-readiness audit. Read the relevant section.
 
 Hardening does not choose a visual direction, redesign layout, or replace the project's normal lint/test tools.
 
@@ -106,7 +106,7 @@ Performance optimizations require evidence of a relevant workload or existing pr
 
 ## Hardening gate
 
-Before a non-trivial Build is reported as production-ready:
+Before calling the changed path production-ready, check the points the change can affect:
 
 1. changed interaction semantics are keyboard/focus safe;
 2. changed async/form behavior has honest pending/failure/recovery handling;
