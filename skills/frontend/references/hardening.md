@@ -23,7 +23,8 @@ Check applicable behavior:
 - icon-only controls have an accessible name;
 - keyboard users can reach and operate every action;
 - focus is visible and is not hidden behind sticky/overlay UI;
-- dialogs and transient layers restore focus sensibly;
+- modal dialogs and other layers that take focus set initial focus, provide a keyboard-operable exit or completion path, and return focus to a valid target;
+- status messages leave focus in place and announce important updates when users would otherwise miss them;
 - ARIA state matches real behavior rather than decorating markup;
 - gestures have an alternate interaction unless the gesture is essential.
 

@@ -16,6 +16,8 @@ Write the flow as a short table of trigger, state, outcome for the surfaces invo
 |---|---|---|
 | user action or event | idle, pending, success, failure | what the user sees and can do next |
 
+When an action requires a selection, permission, or completed step, record what makes it available and what the user can do if the condition is unmet. Explain how to make a meaningful action available when possible. The trusted system enforces permissions.
+
 Decide the state owner and the surface (inline, panel, dialog, page) after the flow is clear, not before.
 
 ## State checklist
