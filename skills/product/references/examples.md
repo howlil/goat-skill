@@ -1,6 +1,6 @@
 # Worked examples
 
-All examples are illustrative: the repo facts are made up to show shape and size. Match the proportion, not the content.
+These scenarios are fictional. Use them to gauge how much detail a request needs.
 
 ## Contents
 1. Tiny change -> Direct
@@ -12,34 +12,28 @@ All examples are illustrative: the repo facts are made up to show shape and size
 
 ## 1. Tiny change -> Direct
 
-Request: "tambah tombol reset timer"
+The request is to make Clear filters restore the default filters.
 
-Output (Indonesian, because the requester wrote Indonesian):
+> Direct. Restore the existing filter defaults when Clear filters is pressed. Keep the current sort order.
 
-> Direct: perilaku sudah jelas, tidak perlu kontrak. Asumsi (mudah dibalik): reset mengembalikan timer ke durasi awal dan membiarkannya berhenti. Jangan ubah penyimpanan timer atau tambah dialog konfirmasi.
-
-Why this is enough: one reversible assumption and one fence. Anything longer is ceremony.
+The requester specified the behavior. Keeping the current sort order is a reversible default.
 
 ## 2. Feature -> Shape contract
 
-Request: "Build an AI screenshot feature triggered by a hotkey." Context found in the repo: a Windows desktop assistant that runs local CLI AI providers; `.agents/product.md` says never capture the screen without an explicit user action.
+The request is to let account holders download their filtered activity. In this scenario, the activity list already supports a date filter, and each account holder can view only their own records.
 
 ```text
-Status: ready
-Outcome: A user can ask the AI about the active screen from a shortcut, without opening the chat UI first.
-Behavior: Hotkey -> capture the active screen -> submit it with the user's prompt -> show the response where other AI results appear.
+Outcome: Account holders can save a copy of the activity that matches their selected date range.
+Behavior: Choose a date range and select Download. The app prepares a CSV and starts the download.
 Acceptance:
-- A1 A valid shortcut starts exactly one analysis; pressing it again while one runs does not start a second.
-- A2 When the analysis finishes, the result can be found in the usual results place.
-- A3 If capture permission is denied, no image is sent anywhere and the user sees a message saying what to do next.
-- A4 A failed analysis is shown as failed, never as success.
-Intent: Capture happens only because the user pressed the shortcut.
-Out of scope: OCR history, multi-monitor capture, annotation tools, new settings pages.
-Constraints: Never capture without explicit user action (product.md). Process the image locally before it reaches the provider.
-Assumptions: Active monitor only. The image is not kept after the request completes (safe default; flip only if the user wants history).
+- A1 When the range matches records, the CSV includes every matching record and excludes records outside the range.
+- A2 When the range matches zero records, the app shows that there is nothing to download.
+- A3 If preparation fails, the app shows an error and the selected range remains available for retry.
+Out of scope: Scheduled exports and delivery by email.
+Constraints: The export follows the same account access rules as the activity list.
 ```
 
-Why it works: each line changes what gets built. A3 and A4 cover the failures that matter; the Intent line blocks the cheap way to pass A1; the assumptions name the privacy defaults instead of leaving them implicit. No class names, no API routes, no test framework.
+The acceptance checks cover matching records, an empty result, and a failed attempt. The access rule applies to the download as well as to the list.
 
 ## 3. Too big -> blocked, then sliced
 
@@ -63,7 +57,7 @@ Request: "Clean up old user data so the app uses less disk space."
 ```text
 Status: blocked - "old" and "user data" are undefined, and deletion cannot be undone.
 Questions (reply "defaults" to accept):
-1. Which data? [Cached screenshots and temp files only; never chats, settings, or history]
+1. Which data? [Regenerable cache files only. Preserve saved user data.]
 2. What makes it old? [Not used for a period you choose; tell me the period]
 3. Delete immediately or show first? [Show what would be removed and its size; delete only after you confirm]
 Nothing is deleted until these are answered.
@@ -73,16 +67,16 @@ Why: third row of the decision table. A wrong guess here is not recoverable, so 
 
 ## 5. "Should we build it?" -> Discover
 
-Request: "Research whether OCR history is worth building."
+The request is to research whether customers need scheduled activity reports.
 
 ```text
-Decision: Build OCR history / do not build / build a smaller version.
-Question: Do users come back to previously captured text, and does anything already serve that need?
-Evidence: Two Issues ask for finding older results; none mention OCR. No usage data is available.
-Assumptions: People who capture screens want to re-find the text later (unverified).
+Decision: Offer scheduled reports, improve manual downloads, or keep the current behavior.
+Question: Do customers download reports on a recurring schedule?
+Evidence: Two support requests ask for easier downloads. The frequency of downloads is unknown.
+Assumptions: Repeated manual downloads indicate a recurring reporting need (unverified).
 Recommendation: Do not build yet. Confidence: low.
-What would change it: Repeated requests from frequent capturers, or data showing past results are reopened.
-Next smallest step: Add a counter for reopened past results, or ask five active users.
+What would change it: Several customers report a recurring deadline and describe the same manual steps.
+Next smallest step: Ask customers who already use manual downloads how often and why they use them.
 ```
 
 Why: evidence and assumptions are separated, the missing data is stated as missing, and the output is a recommendation with its flip condition, not a PRD.

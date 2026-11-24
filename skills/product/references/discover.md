@@ -27,7 +27,7 @@ Value and viability are not in the code. Do not answer them from code.
 
 In this order, stopping as soon as the decision is clear:
 
-1. The repo and what the requester gave you: Issues, support threads, usage logs, existing behavior, prior decisions in `.agents/product.md`.
+1. The relevant materials available to you, including issue reports, support feedback, usage data, current behavior, and recorded product decisions.
 2. Things the user can tell you in one answer.
 3. Public sources via web search, for market or technical facts. Cite them.
 4. A cheap experiment the user can run: a usage counter, a fake-door button, five short conversations.

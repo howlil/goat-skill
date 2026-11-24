@@ -1,8 +1,6 @@
 # Worked examples
 
-All examples are illustrative: the repo facts are invented to show shape and size. Match the proportion, not the content.
-
-Never reuse names, paths, findings, or decisions from these examples. A real report contains only what you found and did in this repo.
+These scenarios use fictional files, components, and findings to show the level of detail. Cite evidence from the project you are working on in a real report.
 
 ## Contents
 1. Small refine
