@@ -67,10 +67,22 @@ Select the skills you want. Individual installations use the plain skill names.
 ## Verify
 
 ```bash
+python3 -m pip install -r scripts/requirements.txt
 python3 scripts/validate.py
+python3 scripts/test_validate.py
 ```
 
-CI checks the exact three-skill catalog, required frontmatter fields, directly referenced Markdown files, and shared packaging metadata. Verify installation and discovery in each host separately. Test model behavior with representative tasks that cover independent use and a change crossing the public interface.
+CI validates the portable manifest against a checked-in schema, parses skill frontmatter as YAML, and checks the catalog, reference paths, and shared packaging metadata. Regression tests exercise the same validation command on clean and broken packages. Verify native installation and discovery in each host separately.
+
+### Compare agent behavior
+
+Use a clean, signed-in Codex CLI profile and the same model for both sides of each pair. The runner installs the relevant skill in one copy of the fixture.
+
+```bash
+python3 evals/run.py --model gpt-5.4-mini
+```
+
+The eval runs a UI label fix, a CLI error contract change, and a database retry fix in disposable projects. Each case runs once with a skill and once without it. The output records first-attempt pass or fail and token usage. Use `--case ui`, `--case cli`, or `--case retry` to run one pair.
 
 ## Licensing
 

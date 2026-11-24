@@ -11,6 +11,6 @@ The `gs` plugin distributes three Agent Skills from `skills/product/`, `skills/f
 
 ## Verification and release
 
-- Run `python3 scripts/validate.py`. CI runs the same check for the exact catalog, skill names and required fields, direct Markdown references, and manifest consistency.
-- Check installation and discovery in the target hosts before claiming native support. Run representative tasks to verify that each concern can operate independently and that combined changes respect the public contract.
+- Install the validation dependencies from `scripts/requirements.txt`. Run `python3 scripts/validate.py` and `python3 scripts/test_validate.py`. CI runs both commands to verify packaging and catch known schema, YAML, and catalog failures.
+- Check installation and discovery in the target hosts before claiming native support. Use `evals/run.py` to compare first-attempt results and token use on the same model with and without skill guidance.
 - Choose a distribution license before the first public release. Publishing, tagging, and merging require explicit approval.

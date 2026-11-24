@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Dependency-free structural and packaging checks for goat-skill."""
+"""Validate the portable manifest, host packaging, and skill files."""
 
 import json
 import re
 import sys
 from pathlib import Path
+
+import yaml
+from jsonschema import Draft202012Validator, ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 PORTABLE_MANIFEST = "plugin.json"
@@ -17,7 +20,7 @@ MANIFESTS = [
 ]
 PLUGIN_NAME = "gs"
 PLUGIN_REPOSITORY = "https://github.com/howlil/goat-skill"
-PORTABLE_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
+PORTABLE_SCHEMA = "scripts/schemas/agent-plugins-1.0.0.json"
 EXPECTED_SKILLS = {"product", "frontend", "backend"}
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 CODEX_CATEGORIES = {
@@ -106,26 +109,18 @@ def check_skill(skill_dir: Path) -> None:
     if not frontmatter:
         fail(f"{entry.relative_to(ROOT)}: missing YAML frontmatter")
 
-    lines = frontmatter.group(1).splitlines()
-    fields = {}
-    for line in lines:
-        if line and not line[0].isspace() and ":" in line:
-            key, value = line.split(":", 1)
-            fields[key.strip()] = value.strip().strip("'\"")
+    try:
+        fields = yaml.safe_load(frontmatter.group(1))
+    except yaml.YAMLError as exc:
+        fail(f"{entry.relative_to(ROOT)}: invalid YAML frontmatter: {exc}")
+    if not isinstance(fields, dict):
+        fail(f"{entry.relative_to(ROOT)}: YAML frontmatter must be a mapping")
 
     name = fields.get("name", "")
     if name != skill_dir.name or not NAME_RE.fullmatch(name) or len(name) > 64:
         fail(f"{entry.relative_to(ROOT)}: name must match its valid folder name")
 
-    description = fields.get("description", "")
-    if description in (">", ">-", "|", "|-", ">+", "|+"):
-        description = " ".join(
-            line.strip()
-            for line in lines
-            if line.startswith((" ", "\t")) and line.strip()
-        )
-    if not description or len(description) > 1024:
-        fail(f"{entry.relative_to(ROOT)}: description must be 1–1024 characters")
+    require_text(fields.get("description"), f"{entry.relative_to(ROOT)} description", 1024)
 
     if not source[frontmatter.end():].strip():
         fail(f"{entry.relative_to(ROOT)}: instructions must not be empty")
@@ -140,6 +135,11 @@ def main() -> None:
     manifest_data = {path: load_json(path) for path in MANIFESTS}
 
     portable = manifest_data[PORTABLE_MANIFEST]
+    try:
+        Draft202012Validator(load_json(PORTABLE_SCHEMA)).validate(portable)
+    except ValidationError as exc:
+        fail(f"{PORTABLE_MANIFEST}: manifest schema violation at {exc.json_path}: {exc.message}")
+
     canonical_name = require_text(portable.get("name"), "plugin.json name", 64)
     if canonical_name != PLUGIN_NAME or not NAME_RE.fullmatch(canonical_name):
         fail(f"plugin.json: expected plugin name {PLUGIN_NAME!r}")
@@ -158,8 +158,6 @@ def main() -> None:
         if manifest.get("description") != canonical_description:
             fail(f"{path}: description must match plugin.json")
 
-    if portable.get("$schema") != PORTABLE_SCHEMA:
-        fail("plugin.json: portable Agent Plugins schema is missing or inconsistent")
     if portable.get("repository") != PLUGIN_REPOSITORY:
         fail("plugin.json: repository is missing or inconsistent")
     author = portable.get("author")
