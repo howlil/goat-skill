@@ -1,48 +1,36 @@
 # Discover mode
 
-Use only when the right decision depends on evidence you do not have: whether the problem is real, who has it, or whether the proposed solution is worth its cost. If the open question is only *what exactly to build*, use Shape instead.
-
-## Contents
-- Frame the decision
-- Find the riskiest unknown
-- Gather the cheapest sufficient evidence
-- Output
+Use when evidence could change whether to build, whom to serve, or which options fit. Use Shape when only the exact behavior is open.
 
 ## Frame the decision
 
-Write the decision in one line: "Build X / do not build / build smaller Y." Then write the question that evidence would answer, and which result would change the decision. If no plausible result would change it, skip discovery and decide.
+Check binding constraints and authorized scope first. Rule out options that violate them. Compare viable choices, including a smaller scope or no change. Name the question and the observation that would change the decision. Skip investigation if no plausible answer would change it.
 
-## Find the riskiest unknown
+Check four risks. Start with the decisive unknown and revisit another only if it could block the decision or a safer option.
 
-Check the four product risks and pick the one most likely to sink the work. Be honest about which is hardest: it is easy to over-examine whatever is easiest to examine.
+- Value. Does the intended consumer have the need?
+- Usability. Can they complete the workflow?
+- Viability. Does it fit privacy, legal, cost, support, and product constraints?
+- Feasibility. Can the outcome fit the constraints? Leave the implementation to its owner.
 
-- Value: does anyone need this enough to use it?
-- Usability: can they work out how to use it?
-- Viability: does it fit privacy, legal, cost, support, and product direction?
-- Feasibility: can it be built within the constraints? Name it only if the answer could change the behavior or scope; the implementer owns the detail.
+## Gather sufficient evidence
 
-Value and viability are not in the code. Do not answer them from code.
+Start with relevant observations such as usage, support reports, current behavior, and agreed decisions. Ask for evidence the user has when it can resolve the choice. Cite public sources for relevant external facts. Code and prototypes can establish behavior or feasibility within limits. Demand needs evidence from or about the intended users.
 
-## Gather the cheapest sufficient evidence
+State what each observation supports and where it stops. Keep assumptions separate. Say when evidence is missing and use a decision-relevant threshold or qualitative result grounded in the goal.
 
-In this order, stopping as soon as the decision is clear:
-
-1. The relevant materials available to you, including issue reports, support feedback, usage data, current behavior, and recorded product decisions.
-2. Things the user can tell you in one answer.
-3. Public sources via web search, for market or technical facts. Cite them.
-4. A cheap experiment the user can run: a usage counter, a fake-door button, five short conversations.
-
-Spend effort only on the one risk you picked. Do not survey the market for its own sake.
+If a probe would settle the uncertainty, propose the smallest safe, time-bounded experiment with a scoped audience or fixture and a result criterion. Say if it has yet to run. Obtain authorization for production experiments, instrumentation, spending, or data collection. Experiments cannot settle preferences the user owns.
 
 ## Output
 
 ```text
-Decision: <the one-line decision>
-Evidence: <each item with its source>
-Assumptions: <treated as true without evidence>
-Recommendation: <build / do not build / build smaller>, confidence low | medium | high
-What would change it: <the result that flips the recommendation>
-Next smallest step: <only if evidence is still short>
+Decision: <viable options>
+Question: <decisive uncertainty>
+Evidence: <source, observation, limitation>
+Assumptions: <unverified premises, if material>
+Recommendation: <build / smaller / do not build yet and confidence>
+What would change it: <decision-relevant observation>
+Next smallest step: <only when needed>
 ```
 
-Keep Evidence and Assumptions visibly separate. If you found nothing, write "no evidence found" instead of filling the gap with plausible user stories, statistics, or quotes. If the recommendation is to build, use Shape to describe the smallest complete behavior and acceptance.
+A recommendation supplies neither readiness nor permission. Shape ready build work only when the decisive evidence supports its intended scope, or when an explicitly authorized, safely scoped experiment is itself the work. Keep experiment findings within that scope. Otherwise stop at a recommendation or next step. If implementation was requested, mark the unresolved work blocked.

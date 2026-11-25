@@ -1,46 +1,47 @@
 ---
 name: product
-description: "Resolve uncertainty about what to build, why it matters, who needs it, or how to tell it works. Use for feature shaping, product discovery, unclear behavior or acceptance, and unresolved costly or irreversible choices. Skip work whose outcome and behavior are already clear."
+description: "Resolve uncertainty that changes product intent, scope, observable behavior or acceptance. Use for discovery, consequential ambiguity, or explicit product and spec requests. Skip clear implementation-only work regardless of technical complexity."
 ---
 
 # Product
 
-Own the intended outcome, scope, observable behavior, and acceptance. Leave interface details and internal mechanisms to the concerns that own them. A contract can describe a binding constraint, such as offline use, without choosing the implementation.
+Own outcomes, scope, observable behavior, and acceptance, including for API and library callers. Leave interface details and mechanisms to their owners.
 
-## Choose the smallest useful response
+## Choose the smallest response
 
-| Situation | Response |
-| --- | --- |
-| The request and repo make behavior and done clear | **Direct.** Proceed with the requested work or answer. State a material reversible assumption only if one is needed. |
-| The outcome is clear and scope, behavior, or acceptance could vary | **Shape.** Settle only the decisions that change the result. |
-| Evidence could change whether to build it or whom it serves | **Discover.** Read `references/discover.md` and investigate the question most likely to change the decision. |
-| A costly, irreversible, externally consequential, or authorization-sensitive choice is unresolved | **Blocked.** Ask for the missing decision and pause the dependent action. Keep any independent work moving. |
+- **Direct.** When the outcome, behavior, and constraints are clear, proceed as requested. If invoked explicitly, a line suffices. Skip optional reads, questions, and new documents.
+- **Shape.** Settle only the intent, behavior, scope, or acceptance choices that affect the result.
+- **Discover.** If evidence could change whether, for whom, or within what constraints to build, read `references/discover.md`.
+- **Blocked** is a readiness status. Name the missing decision or authorization and its consequence. Withhold the affected handoff and action. Continue independent authorized work.
 
-Read the request and its constraints, then inspect the relevant issue, existing behavior, tests, and product decisions. Treat current behavior as a baseline. Ground claims about users, demand, metrics, and feasibility in evidence. Record a material reversible assumption with the condition that would change it.
+Start with the request, binding constraints, and authorized scope. Check durable product rules, then agreed task details and relevant behavior, tests, or history. Distinguish observations, agreements, assumptions, and unknowns. Describe material behavior changes. Surface durable-rule conflicts and resolve them only with explicit authority.
 
-## Shape the work
+## Resolve decisions in order
 
-- When evidence leaves a decision that would change the build, ask the highest-impact question whose prerequisites are settled. Stop asking once scope and acceptance are clear enough to build.
-- State who needs what outcome or what failure stops. If a proposed solution obscures the user's job, identify what triggers the need and how they handle it today, if known.
-- Describe the smallest complete path from trigger to observable result. Include the starting state in behavior and acceptance when it changes the result. For an existing product, cover only the changed path and states it touches. Split large work into independently useful slices.
-- Cover material failure and recovery, binding constraints, and adjacent scope an implementer might reasonably include.
-- Make acceptance observable through the public entry point. Cover the main path and meaningful failure or recovery. Use varied examples where behavior depends on data. State the intent if a literal check could be passed by special-casing its inputs.
-- Ask what was observed for each material acceptance condition. Keep unknowns visible and distinguish evidence from assumptions.
+- Name who needs what result. If the solution may miss the need, evidence challenges a premise, or fixes fail on the same premise, check the trigger and current workflow. Name one observation that could disprove the premise. Prefer a smaller complete workflow, reuse, or removal that meets the need and constraints. Compare at most one viable alternative when useful.
+- Investigate facts within scope, using permitted low-risk probes where useful. Ask users for decisions they own. If a term or relationship changes behavior, check existing vocabulary and contrast outcomes in one scenario. Use resolved terms.
+- Use justified, low-impact reversible defaults consistent with intent. State material defaults and their flip condition. Ask about the controlling goal or constraint before semantics, behavior, and preferences. Batch independent questions only, up to three per round. Explain consequences and recommend a safe option if available. Apply answers before dependent questions. Ask one round by default, more only for new blockers or requested depth. Report unresolved blockers when noninteractive.
+- For destructive or high-impact actions require authorization of the scope, target, and effect. Planning or generic defaults cannot supply it. Skip reconfirmation when already authorized.
 
-Use only the fields that affect the decision or build.
+## Shape and verify the contract
+
+Detail the first independently demonstrable path from trigger to consumer result. List later titles and real blockers only. Label essential prerequisites with what proves them and why they gate delivery.
+
+Omit empty fields. Aim for 5–15 lines. Use the requester's language and preserve identifiers.
 
 ```text
-Outcome: <capability or corrected behavior>
-Behavior: <trigger, response, result>
-Acceptance: <observable evidence of success and material failure behavior>
-Out of scope: <adjacent behavior beyond the request>
+Outcome: <consumer and result>
+Behavior: <trigger, response, resulting state>
+Acceptance: <observable success and material exceptions>
+Intent: <only if literal checks can miss the goal>
+Out of scope: <plausible adjacent work>
 Constraints: <binding requirements>
-Assumptions: <reversible default and what would change it>
-Blocked on: <decision or authorization needed to continue>
+Assumptions: <reversible default and flip condition>
+Later slices: <titles and material blockers>
 ```
 
-## Continue at the relevant concern
+Preserve unaffected behavior and invariants. Check relevant state changes, permission, failure and recovery, repeats or concurrency, persistence, and compatibility through the public entry point. Vary relevant data. Use agreed performance bounds. Report observed evidence or gaps per criterion. Read `references/examples.md` only for output or sizing.
 
-When the user asks to build and the outcome is clear, carry it into the relevant interface or implementation work in the same task. When the user asks only for a decision or spec, deliver that. Revisit the affected decision if new evidence changes it.
+## Continue or revise
 
-Put durable product decisions in the project's existing product record when the user requests or authorizes a write. Keep feature-specific acceptance with the existing task. Read `references/examples.md` if the right amount of detail is unclear.
+Hand off only ready work the user asked to build. Keep acceptance with the task. Revise affected fields explicitly, name superseded criteria, and flag rechecks if work started. Propose durable rule or vocabulary deltas to existing records, with rationale when consequential. Write only with approval.

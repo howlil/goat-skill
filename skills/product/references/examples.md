@@ -1,86 +1,57 @@
 # Worked examples
 
-These scenarios are fictional. Use them to gauge how much detail a request needs.
+These are fictional fixtures for choosing the amount of detail and the shape of a response.
 
-## Contents
-1. Tiny change -> Direct
-2. Feature -> Shape contract
-3. Too big -> blocked, then sliced
-4. Irreversible effect -> blocked
-5. "Should we build it?" -> Discover
-6. The failure to avoid
+Keep acceptance items independently checkable. Typically use one or two for small changes and three to seven for features. Use IDs when there are at least three items or another part of the task references them.
 
-## 1. Tiny change -> Direct
+## Direct
 
-The request is to make Clear filters restore the default filters.
+The agreed behavior is that Clear filters restores the existing filter defaults and leaves the sort order alone.
 
-> Direct. Restore the existing filter defaults when Clear filters is pressed. Keep the current sort order.
+> Direct. Restore the existing filter defaults and preserve the sort order.
 
-The requester specified the behavior. Keeping the current sort order is a reversible default.
+Changing all the callers can be technically difficult while the product decision stays settled. If the request instead says “Reset the timer” and running timers can stop or continue, check the existing behavior or ask which state should follow reset.
 
-## 2. Feature -> Shape contract
+## Shape a useful slice
 
-The request is to let account holders download their filtered activity. In this scenario, the activity list already supports a date filter, and each account holder can view only their own records.
+Account holders need to save filtered activity. The activity list already supports a date filter and shows only the account holder's records. The first slice downloads one selected range. Repeated exports may follow once that workflow works.
 
 ```text
-Outcome: Account holders can save a copy of the activity that matches their selected date range.
-Behavior: Choose a date range and select Download. The app prepares a CSV and starts the download.
+Outcome: Account holders can save activity for one selected date range.
+Behavior: Select a range and download its activity as CSV.
 Acceptance:
-- A1 When the range matches records, the CSV includes every matching record and excludes records outside the range.
-- A2 When the range matches zero records, the app shows that there is nothing to download.
-- A3 If preparation fails, the app shows an error and the selected range remains available for retry.
+- A1 With matching records, the download contains all and only the account's records in the selected range.
+- A2 With no matches, the app explains that there is nothing to download.
+- A3 If preparation fails, the app reports the failure and preserves the selected range for retry.
 Out of scope: Scheduled exports and delivery by email.
-Constraints: The export follows the same account access rules as the activity list.
+Constraints: Apply the same access rules as the activity list.
 ```
 
-The acceptance checks cover matching records, an empty result, and a failed attempt. The access rule applies to the download as well as to the list.
+If older records lack reliable account ownership, establishing that ownership can be a prerequisite. Verify that affected records can be assigned reliably and that ambiguous cases remain inaccessible before shipping exports. Schema or UI work alone does not deliver the download.
 
-## 3. Too big -> blocked, then sliced
+## Shape the controlling choice
 
-Request: "Redesign all the pages of the app."
+“Remove shared notes” is ambiguous when boards contain placements of the same note. Use the existing terms and a contrast.
+
+> If note N is on boards A and B, should removing it from A leave B's placement intact? I recommend unlinking A's placement if the goal is board cleanup. Deleting N would remove it everywhere.
+
+An explicit unlink request is ready without that question. Its acceptance checks that A stays unlinked after reopening while B still shows N. If unlinking fails, report it visibly and preserve A's placement.
+
+## Block an irreversible action
+
+“Plan cleanup of old user data” does not specify the retention policy or authorize deletion.
 
 ```text
-Status: blocked - the problem driving the redesign is unknown.
-The app has several screens. Two questions (reply "defaults" to accept the bracketed answers):
-1. What is wrong today that the redesign should fix? [Inconsistent spacing and controls across screens]
-2. Which screen do people use most? [The main window]
-Proposed cut: Slice 1 is the main window only, judged against the problem you name.
-Later slices, by title: Settings, History, Onboarding. Each is shaped when reached.
+Status: blocked for deletion. The target and retention rule are unresolved.
+Question: Which data can expire, and what retention policy sets its cutoff?
+Why: A cache and saved records have different recovery consequences.
+Safe next step: Plan a read-only inventory and review of candidate data.
 ```
 
-Why: a redesign with no stated problem cannot be verified, and "all pages" invites an unreviewable change. Fence the scope, ask the one thing that decides it, and give a default.
+The plan can proceed within scope. Deletion needs explicit authorization of the selected data and effect.
 
-## 4. Irreversible effect -> blocked
+## Discover whether work is warranted
 
-Request: "Clean up old user data so the app uses less disk space."
+Two support requests ask for easier downloads. Neither mentions recurring reporting. That supports looking at the download flow, but leaves demand for scheduled reports unverified. Recommend holding scheduled reports until direct evidence shows a repeated deadline and manual workflow. If a local prototype is authorized, bound it to sample data and check whether a user can specify the intended schedule. That result speaks to usability, not demand or production permission.
 
-```text
-Status: blocked - "old" and "user data" are undefined, and deletion cannot be undone.
-Questions (reply "defaults" to accept):
-1. Which data? [Regenerable cache files only. Preserve saved user data.]
-2. What makes it old? [Not used for a period you choose; tell me the period]
-3. Delete immediately or show first? [Show what would be removed and its size; delete only after you confirm]
-Nothing is deleted until these are answered.
-```
-
-Why: third row of the decision table. A wrong guess here is not recoverable, so the contract blocks instead of choosing a default.
-
-## 5. "Should we build it?" -> Discover
-
-The request is to research whether customers need scheduled activity reports.
-
-```text
-Decision: Offer scheduled reports, improve manual downloads, or keep the current behavior.
-Question: Do customers download reports on a recurring schedule?
-Evidence: Two support requests ask for easier downloads. The frequency of downloads is unknown.
-Assumptions: Repeated manual downloads indicate a recurring reporting need (unverified).
-Recommendation: Do not build yet. Confidence: low.
-What would change it: Several customers report a recurring deadline and describe the same manual steps.
-Next smallest step: Ask customers who already use manual downloads how often and why they use them.
-```
-
-Why: evidence and assumptions are separated, the missing data is stated as missing, and the output is a recommendation with its flip condition, not a PRD.
-
-## 6. The failure to avoid
-
-A one-line bug fix expanded into four user stories carrying sixteen acceptance criteria, each restating that the system should be robust. Nothing in it changed what got built, and reviewing it cost more than the fix.
+When two speed fixes leave report completion unchanged, check whether users reach the existing download in failed sessions. If they never reach it, another speed fix leaves that failure untouched.
