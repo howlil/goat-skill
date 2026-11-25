@@ -48,11 +48,22 @@ def check_keyboard(page):
 
 
 def check_submenu(page):
-    open_export_with_keyboard(page)
+    open_with_keyboard(page)
+    expect(menu(page, "Export")).to_be_hidden()
+    page.keyboard.press("ArrowDown")
+    expect(item(page, "Export")).to_be_focused()
+    expect(item(page, "Export")).to_have_attribute("aria-expanded", "false")
+    page.keyboard.press("ArrowRight")
+    expect(item(page, "CSV")).to_be_focused()
     expect(menu(page, "Export")).to_be_visible()
     expect(item(page, "Export")).to_have_attribute("aria-expanded", "true")
+    page.keyboard.press("ArrowUp")
+    expect(item(page, "JSON")).to_be_focused()
+    page.keyboard.press("ArrowDown")
+    expect(item(page, "CSV")).to_be_focused()
     page.keyboard.press("ArrowLeft")
     expect(menu(page, "Export")).to_be_hidden()
+    expect(item(page, "Export")).to_have_attribute("aria-expanded", "false")
     expect(item(page, "Export")).to_be_focused()
     page.keyboard.press("ArrowRight")
     expect(item(page, "CSV")).to_be_focused()
@@ -86,14 +97,17 @@ def check_unavailable(page):
     expect(page.get_by_text("Archiving is unavailable for this report.", exact=True)).to_be_visible()
     for key in ("Enter", "Space"):
         page.keyboard.press(key)
+        expect(menu(page)).to_be_visible()
         expect(page.get_by_role("status")).to_have_text("No action selected.")
         expect(archive).to_be_focused()
 
 
 def check_pointer(page):
     trigger(page).click()
+    expect(item(page, "Rename")).to_be_focused()
     item(page, "Export").click()
     expect(menu(page, "Export")).to_be_visible()
+    expect(item(page, "CSV")).to_be_focused()
     details = page.get_by_role("button", name="Details", exact=True)
     details.click()
     expect(menu(page, "Export")).to_be_hidden()

@@ -244,7 +244,9 @@ def attempt(label, case, model):
                 event.get("message") or event.get("error", {}).get("message")
                 for event in events if event.get("type") in ("error", "turn.failed")
             ]
-            message = next((error for error in reversed(errors) if error), "no completed Codex turn")
+            stderr = result.stderr.strip().splitlines()
+            fallback = stderr[-1] if result.returncode and stderr else "no completed Codex turn"
+            message = next((error for error in reversed(errors) if error), fallback)
             raise RuntimeError(message)
         items = [event["item"] for event in events if event.get("type") == "item.completed"]
         messages = [item["text"] for item in items if item["type"] == "agent_message"]
