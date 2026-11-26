@@ -1,27 +1,16 @@
 # Engineering
 
-## System
-Static GitHub repository. Agents load canonical `skills/<name>/SKILL.md` according to the Agent Skills specification. The root portable manifest is authoritative; host-specific metadata must not duplicate skill instructions.
+The `gs` plugin distributes three Agent Skills from `skills/product/`, `skills/frontend/`, and `skills/backend/`. Each skill can be installed on its own and all of its resources live inside its directory. Shared project guidance lives in `AGENTS.md`, which applies where the host loads it. Each installed skill carries the instructions it needs to work independently.
 
-## Structure & responsibility
-- `skills/`: sole owner of skill instructions and per-skill resources.
-- `skills/product/`: product scope, acceptance, and evidence-driven discovery.
-- `skills/design/`: frontend implementation/refinement/audit plus conditional layout, visual-specificity, UX, motion, stress, hardening, accessibility, and design-system guidance.
-- `plugin.json`: canonical portable Agent Plugins manifest and OpenAI presentation metadata.
-- `.codex-plugin/plugin.json`: Codex compatibility fallback; points to the canonical `./skills/` directory.
-- `.claude-plugin/`: Claude Code manifest and marketplace.
-- `.antigravity-plugin/`: Agy manifest override.
-- `.agents/plugins/marketplace.json`: Codex repo-local catalog and install policy.
-- `scripts/validate.py`: cross-manifest, marketplace, interface, path, and skill-layout checks.
+## Packaging
 
-## State & contracts
-No runtime or persisted user state. All plugin manifests share `name=gs` and `version=0.4.0`. Root `plugin.json` owns portable identity. The Codex compatibility manifest must match its identity, author, repository, and OpenAI interface metadata and expose `./skills/`. Skill folder and YAML `name` must match. Product scope flows from `product` to `design`; design must not silently redefine acceptance.
+- Root `plugin.json` is the portable source of truth. The Codex fallback manifest mirrors the identity and OpenAI interface metadata and points to the canonical `./skills/` directory.
+- Claude Code, Antigravity, and marketplace manifests package the same library. Keep the plugin name, version, and description in sync.
+- The package consists of static instructions and metadata. Keep specialized testing, architecture, security, operations, review, and delivery guidance within the concern that owns the work.
+- The change from `design` to `frontend` is an invocation rename. The current development version is 0.5.0.
 
-## Verification
-Local and PR gate: `python3 scripts/validate.py`.
-The gate verifies portable schema/identity, Codex compatibility fallback, OpenAI interface metadata, repo marketplace policy/category/display name, host manifest identity/version, every skill frontmatter, and every referenced Markdown path.
-Native host discovery remains release evidence: Claude `/gs:product` and `/gs:design`; Codex `$product` and `$design`; Agy `/product` and `/design`.
-Model behavior remains separate evidence: product modes and design Refine / Build / Audit plus conditional layout / specificity / stress / hardening behavior must be exercised in actual agent runtimes.
+## Verification and release
 
-## Release
-Do not publish or tag before deliberate release approval. Before first public release: choose a license, run native host installation/discovery checks, run behavior evaluations, and complete any directory listing/legal metadata required by the target host.
+- Install the validation dependencies from `scripts/requirements.txt`. Run `python3 scripts/validate.py` and `python3 scripts/test_validate.py`. CI runs both commands to verify packaging and catch known schema, YAML, and catalog failures.
+- Check installation and discovery in the target hosts before claiming native support. Use `evals/run.py` to compare first-attempt results and token use on the same model with and without skill guidance.
+- Choose a distribution license before the first public release. Publishing, tagging, and merging require explicit approval.

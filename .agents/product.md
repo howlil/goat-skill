@@ -1,16 +1,9 @@
 # Product
 
-## Purpose
-Reusable software-engineering agent skills installable across Codex, Claude Code, Agy, and skills.sh without duplicated platform-specific instructions.
+Make rigorous engineering guidance usable across agent hosts with three independently installable skills.
 
-## Invariants
-- The canonical skill contents live under `skills/<name>/`; manifests only package them.
-- The plugin identity is `gs`; the canonical catalog currently contains `product` and `design`.
-- `product` owns product uncertainty, scope, acceptance, and evidence-driven discovery.
-- `design` owns frontend implementation/refinement/audit and consumes product scope rather than redefining it.
-- `product` minimizes specification overhead; never invent evidence, stakeholders, metrics, or decisions.
-- When an external, irreversible, or expensive product choice is unresolved, block rather than assuming.
-- No publication, installation claim, or new skill without the required evidence and authorization.
-
-## Open decision
-Select a distribution license before public release.
+- Product owns intent, scope, observable behavior, and acceptance.
+- Frontend owns how people, programs, and devices consume the software through its public interfaces.
+- Backend owns implementation, authoritative state, and execution behind those interfaces.
+- Agents use the concerns touched by the work. Requests with clear behavior can start at the interface or implementation. Mechanical edits can skip all three.
+- Keep routine work light. Load specialized guidance when it affects a decision, implementation, or verification. Ground claims with observed evidence.

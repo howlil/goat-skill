@@ -15,6 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install validation dependencies
+        run: python -m pip install -r scripts/requirements.txt
       - name: Validate plugin packaging and canonical skills
-        run: python3 scripts/validate.py
+        run: python scripts/validate.py
+      - name: Check validator regression cases
+        run: python scripts/test_validate.py
