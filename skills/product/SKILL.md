@@ -5,9 +5,9 @@ description: Clarify product intent, behavior, scope, and observable acceptance 
 
 # Product
 
-Resolve decisions that change consumer outcomes, scope, constraints, or proof. A consumer can be a person, an operator, a library user, or another service. Product defines intended outcomes and observable behavior. Frontend owns public interfaces and contracts, including API, library, and CLI surfaces. Backend owns internal logic, authoritative state, and execution. The same agent can act in any of these roles.
+Product owns intended outcomes, scope, constraints, and observable acceptance for people and programmatic consumers. Frontend owns public interfaces and contracts. Backend owns internal logic, authoritative state, and execution. One agent can cover the concerns the task needs.
 
-Check the requested deliverable before using tools. For scoping, planning, spec, interview, or research alone, use read-only tools and answer in chat. A named artifact may be written when authorized. A proposal to change behavior is part of that output. Editing the product or dispatching implementation requires a build request.
+Match the requested deliverable before using tools. For scope, spec, interview, or research, answer in chat or write the authorized artifact. Use read-only tools outside that destination. Edit the app or hand off implementation only when the user requests a build.
 
 ## 1. Ground and route
 
@@ -15,16 +15,15 @@ Ground only what affects the decision. Start with the current request, binding c
 
 Keep observed facts, agreed intent, assumptions, and unknowns distinct. If evidence is unavailable, say what is missing. Invent no users, metrics, research, permissions, or retention guarantees. A change to current behavior should name the delta and protect affected neighbors. Surface a conflict with a durable rule and ask the controlling question if the override is unclear or unauthorized.
 
-**Priority.** Use the recorded `Now:` focus or the requester's current goal. Continue work that serves it, trivial fixes cheaper than discussion, and work that stops harm (name the preemption briefly). For an off-focus nice-to-have, give `Status: blocked - not a priority`, the focus, and what would change the call. Save nothing. Honor an explicit requester override and note it once.
+**Priority.** When asked what to prioritize, weigh the cost of delay and the recorded `Now:` focus and recommend proceed or defer with the trade-off. A clear new request sets current intent. Flag material conflicts and proceed within binding constraints, established workflow gates, and authority. Change durable focus only with approval.
 
 | Mode | When and output |
 |---|---|
-| Direct | Actor, behavior, outcome, and material constraints are grounded. For explicit scoping of routine work, even if phrased as "shape" or "spec", reply only `Direct: No contract needed. <outcome with any material fence>`. Use the requester's language and skip optional references. Clear implementation-only work skips Product. |
-| Shape | The outcome is known and a consequential choice remains, or the user needs a contract to verify a material risk. Settle what is open and return the short contract. |
+| Direct | Behavior, outcome, and material constraints are clear. Implementation-only work skips Product regardless of complexity. For a scope check, a line can suffice. For a requested spec or contract, give the settled outcome, behavior, acceptance, and material fences without adding questions. Direct has no required reference reads. |
+| Shape | A consequential choice about what to build remains. Settle it and return the shortest useful contract. |
 | Discover | Whether to build, for whom, or within which hard constraints depends on missing evidence. Read `references/discover.md`. |
-| Grill | The requester asks for an interview, or consequential decisions depend on user answers across rounds. Use the question rule in section 4. Read `references/grill.md` only for a requested or genuinely multi-round interview. |
 
-Technical complexity alone never triggers Product. Ordinary implementation edge cases stay with the implementer unless they materially change the outcome or a constraint. Blocked is a readiness status in any mode.
+Ready and Blocked describe readiness in any mode. Honor explicit interviews even for settled behavior. Read `references/grill.md` for a requested interview or consequential questions that depend on answers across rounds.
 
 ## 2. Settle meaning and test the premise
 
@@ -34,7 +33,7 @@ When a proposed solution may miss the need, evidence contradicts a premise, or r
 
 ## 3. Shape the smallest complete outcome
 
-State who gains what and the trigger, response, and resulting state that achieve it. Include only capabilities whose absence breaks the outcome or causes harm. Fence plausible adjacent expansion. Keep cut nice-to-haves out of later slices and backlogs. Record an intentional shortcut on core work only if its follow-up has a real trigger.
+Name the consumer, outcome, trigger, and resulting state. Fence plausible adjacent work. Keep only core capabilities and record shortcuts only when a real trigger calls for follow-up.
 
 Shape the first independently demonstrable consumer capability in full. Name later capabilities by title and add only dependencies that block delivery. If a migration, compatibility shim, or probe must come first, label it a prerequisite, explain why it gates the capability, and give the observable boundary that proves it is ready. Technical sequencing belongs to the implementation owners. For a multi-slice or cross-session feature, use the conditional spec form in `references/spec.md`.
 
@@ -52,7 +51,7 @@ Ask controlling intent and constraints first, then meaning or relationships, the
 
 Before a destructive, high-impact, or externally consequential action, verify explicit authorization covers its target, scope, and effect. A generic acceptance of defaults cannot supply it. Proceed without reconfirmation when the needed authority and decision are already clear.
 
-If blocked on what the user intends, respond with `Status: blocked`, one grounded fact, and the controlling question with a safe recommendation. End on that one question. Defer identifiers and other follow-up details until the user chooses the action. Both interpretations stay undecided until the answer, so neither gets a contract, acceptance criteria, or a conditional handoff. If authorization alone is missing, name the exact authorization needed. Continue independent work only when separately requested and authorized.
+For blocked intent, return `Status: blocked`, the grounding fact, and the controlling question with a safe recommendation. End there and defer drafts, target details, and handoff until the choice is settled. If authorization alone is missing, name what approval is needed. Continue separately authorized independent work.
 
 ## 5. Write observable acceptance
 
@@ -63,7 +62,7 @@ If blocked on what the user intends, respond with `Status: blocked`, one grounde
 
 ## 6. Return the contract
 
-Write in the requester's language and preserve their domain identifiers. Aim for 5–15 lines and omit empty fields. Read `references/examples.md` only when unsure about format or proportion.
+Write in the requester's language and preserve their domain identifiers. Aim for 5–15 lines and omit empty fields. Read `references/examples.md` when format, proportion, or a relevant ambiguity needs an example.
 
 ```text
 Status: ready
@@ -86,12 +85,12 @@ For a bug, use `Current:` with known repro steps and `Expected:` in place of Out
 
 ## 7. Persist only what outlives the task
 
-Keep ordinary contracts in the existing task or PR. For durable multi-session work, keep one spec in the existing authorized source. Collapse completed slices and retire the spec when done. Keep exploration, interview notes, and rejected ideas in chat. Create issues only when requested or required by an authorized workflow.
+Keep ordinary contracts in the task or PR and a single spec for cross-session work. Keep exploration and rejected ideas in chat. Create issues only when requested or required by an authorized workflow.
 
 Use `.agents/product.md` for the purpose, durable invariants, boundaries, and the current `Now:` focus with any agreed appetite. Keep it to about one screen (40 lines). When accepted intent changes an invariant, focus, or durable term, propose the smallest replacement in that file or the existing glossary. Retain rationale only when it prevents repeating a consequential decision. Write `.agents/product.md` only when explicitly requested or approved. Keep feature acceptance in the task. Skip new glossary, ADR, or decision-log machinery by default.
 
 ## 8. Hand off ready work
 
-Ready means the implementer can build and verify the smallest outcome without inventing a requirement, with binding constraints and authority satisfied. Preserve the requested guarantee at its stated scope. If callers are promised at most one effect across retries and no expiry is stated, require at most one effect even on late retries. Leave retention and replay mechanisms to Engineering. A proposed expiry that would allow a second effect changes the public promise. If that narrower promise is needed, return `Status: blocked` until the requester agrees to the retry boundary and the outcome beyond it. A release caveat cannot make that contract ready. Apply the Discover evidence gate before production handoff. An authorized experiment has its own scope and decision criterion.
+A ready contract is buildable and verifiable without guessing, within binding constraints and authority. Preserve observable guarantees across their agreed scope and lifecycle. If an exception, limit, expiry, or failure behavior would weaken a promise, block affected work until the requester agrees to the change. A release caveat cannot substitute for that decision. Apply the Discover readiness gate to production and authorized experiments.
 
-For requested and authorized implementation, continue through the existing implementer or in the same session. Close a contract handoff with “Build only what is described. Report adjacent findings; do not act on them.” For spec or research only, return the requested output. On new evidence, revise only affected fields, identify superseded acceptance, and flag what needs re-verification if work began.
+For requested and authorized implementation, continue through the existing implementer or in the same session. Close a contract handoff with “Build only what is described. Report adjacent findings; do not act on them.” On new evidence, revise only affected fields, identify superseded acceptance, and flag what needs re-verification if work began.

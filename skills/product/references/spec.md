@@ -2,7 +2,7 @@
 
 Use when a feature needs more than one shippable slice or will be built across sessions, so the contract must outlive the chat and keep the build honest. A change that fits in one PR keeps the plain contract (SKILL.md section 6) in the task or PR instead.
 
-The spec is the contract the code is checked against, not a planning document. It holds product behavior only; implementation plans, data models, and task lists belong to the implementer (engineering or design) and only if they need them.
+The spec is the contract the code is checked against, not a planning document. It holds product behavior only; implementation plans, data models, and task lists belong to the implementation owner when needed.
 
 ## Contents
 - Where it lives
@@ -60,9 +60,9 @@ Budget: about 50 lines for the whole file. Terms and Assumptions take at most th
 
 ## Keeping it true, then making it disappear
 
-A spec holds only work that is not yet built. Once code and tests carry a behavior, repeating it in the spec is a second copy that will drift.
+A spec tracks remaining work and can hold durable constraints or rationale until their approved destination is updated.
 
 - When intent or evidence changes during a build, update only affected criteria in the same change and flag what needs re-verification.
 - The implementer may add acceptance items but never weakens or drops one; if an item is wrong, it proposes the contract change and says why.
-- When a slice ships, collapse it to one line, `## Slice 1: <title> - done (<PR or commit>)`, and shape the next slice. The tests now hold its acceptance.
-- When the last slice ships, propose any durable product delta per SKILL.md section 7, then retire the spec through the authorized workflow.
+- When a slice ships, collapse it to one line, `## Slice 1: <title> - done (<PR or commit>)`, and shape the next slice. Tests carry completed acceptance. Keep any unique durable decision or rationale until it reaches its approved source.
+- Before retiring a completed spec, identify invariants, definitions, and consequential rationale that code and tests cannot reconstruct. Propose the smallest update to the existing authorized source per SKILL.md section 7. Preserve the decision in the spec until that update is approved and made, then retire through the authorized workflow. If code and tests already carry what matters, retire without a new record.

@@ -84,7 +84,9 @@ python3 evals/run.py --model gpt-5.4-mini
 
 The default eval runs a UI label fix, a CLI error contract change, and a database retry fix in disposable projects. Each case runs once with a skill and once without it. Use `--case` to run one pair.
 
-Add `--routing` to compare a mechanical edit and an ambiguous deletion request. The skill-enabled runs make all three skills available and let Codex choose what to use. Results include first-attempt correctness, token usage, elapsed time, and skill file paths visible in successful shell commands.
+Add `--routing` to compare a mechanical edit and an ambiguous deletion request. The skill catalog is available for automatic selection. Successful command paths are a proxy for skill reads.
+
+Set `MODEL` to a model your Codex account supports. Product cases `p01`–`p12` and `r01`–`r05` are opt-in with `--case`. For example, `python3 evals/run.py --model "$MODEL" --case p05` compares a two-turn unlink request with no Product skill, the audited v0.4.0 Product baseline, and the candidate. Each trial emits the transcript, workspace diff, elapsed time, and native token counters. A failed workspace check is a hard failure. Review each response against its oracle and fill the six rubric fields before calling it a pass. Use `--runs` only when the budget warrants repeats.
 
 Run `--case popup` to compare one nested action menu build with and without `gs:frontend`. The result includes separate Chromium checks for keyboard navigation, submenu focus and dismissal, status feedback, the unavailable action, pointer behavior, and a 320px viewport.
 

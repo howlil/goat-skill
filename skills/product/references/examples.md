@@ -60,7 +60,7 @@ What would change it: Reports from capture users that they repeatedly lose text 
 Next smallest step: Review existing capture-related requests for that pattern.
 ```
 
-## Grill in rounds
+## Interview in rounds
 
 Request: "aku mau fitur langganan di app kasir ini, belum tahu detailnya". The app has store owners and cashiers and already handles one-time payments.
 
@@ -84,9 +84,11 @@ If an existing client needs compatible identifiers before that first capability 
 
 ## Off-focus request
 
-Recorded focus: "owner subscription renewal." Request: "tambahin dark mode dong".
+Recorded focus: "owner subscription renewal." A clear authorized request to change one menu label can proceed even when unrelated. If asked whether to prioritize dark mode, recommend deferring it while renewal blocks the current goal. Keep the durable focus until the requester approves a change.
 
-> Status: blocked - bukan prioritas. Fokus sekarang perpanjangan langganan. Dark mode layak didahulukan jika tampilan saat ini menghambat kasir di toko yang gelap, atau jika kamu menetapkannya sebagai fokus.
+## Preserve a retry guarantee
+
+A caller is promised at most one transfer for the same request, with no stated expiry. Include late retries in acceptance. An agreed finite window applies as stated. If a proposal allows a second transfer after expiry, agree to the consumer-visible change before handing off. A release caveat cannot authorize that change. The implementer owns retention and replay mechanisms.
 
 ## Bug form
 

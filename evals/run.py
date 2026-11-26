@@ -2,12 +2,14 @@
 """Compare Codex first attempts with and without Goat Skill."""
 
 import argparse
+import io
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 from dataclasses import dataclass
@@ -15,9 +17,12 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Callable
 
+from product_cases import CASES as PRODUCT_CASES, ProductCase, Turn, observe, snapshot, verdict
+
 
 ROOT = Path(__file__).resolve().parent
 SKILLS = ROOT.parent / "skills"
+PRODUCT_BASELINE = "a3a3166b0e0cc3adfbdd4fbeb96248c98194d389"
 SKILL_PATH = re.compile(r"skills/((?:product|frontend|backend)/(?:SKILL\.md|references/[\w.-]+\.md))")
 
 
@@ -114,16 +119,6 @@ def check_clear_edit(workspace, _response):
     return (workspace / "notice.txt").read_bytes() == expected
 
 
-def check_product(workspace, response):
-    if (workspace / "reports.json").read_bytes() != (ROOT / "fixtures/reports.json").read_bytes():
-        return False
-    return any(
-        re.search(r"\?|\b(?:clarify|confirm|specify|tell me)\b", sentence, re.I)
-        and re.search(r"\b(?:which reports|old|older|cutoff|retention|retain|keep|date|days|months|years|age)\b", sentence, re.I)
-        for sentence in re.split(r"(?<=[.!?])\s+|\n", response)
-    )
-
-
 def check_popup(workspace, _response):
     try:
         from popup_menu import check_popup_menu
@@ -169,10 +164,11 @@ ROUTING_CASES = {
         "In notice.txt, change 'every Tuesday' to 'every Thursday'. Keep the rest of the file as is.",
         check_clear_edit,
     ),
-    "product": Case(
-        "reports.json", None,
-        "Delete old saved reports from reports.json to free up space.",
-        check_product,
+    "product": ProductCase(
+        {"reports.json": (ROOT / "fixtures/reports.json").read_text(encoding="utf-8")},
+        (Turn("Delete old saved reports from reports.json to free up space.",
+              "Ground the affected reports and missing cutoff or scope. Ask the controlling choice and withhold the deletion handoff."),),
+        routing=True,
     ),
 }
 
@@ -225,58 +221,135 @@ def attempt(label, case, model):
                 shutil.copytree(SKILLS / case.skill, destination / case.skill)
                 prompt = f"${case.skill}\n\n{prompt}"
 
-        started = time.perf_counter()
-        result = subprocess.run(
-            [
-                "codex", "-a", "never", "exec", "--ignore-user-config", "--ignore-rules",
-                "--ephemeral", "--json", "--sandbox", "workspace-write",
-                "-c", 'shell_environment_policy.inherit="core"',
-                "--model", model, "--", prompt,
-            ],
-            cwd=workspace, stdin=subprocess.DEVNULL, capture_output=True, text=True,
-            timeout=150,
+        result = codex_turn(workspace, model, prompt)
+        response = result.pop("response")
+        result.pop("thread")
+        return {**score(case, workspace, response), **result}
+
+
+def codex_turn(workspace, model, prompt, *, multi_turn=False, thread=None, effort=None):
+    command = [
+        "codex", "-a", "never", "exec", "--ignore-user-config", "--ignore-rules",
+        "--json", "--sandbox", "workspace-write", "-c", 'shell_environment_policy.inherit="core"',
+        "--model", model,
+    ]
+    if effort:
+        command += ["-c", f'model_reasoning_effort="{effort}"']
+    if not multi_turn:
+        command.append("--ephemeral")
+    if thread:
+        command += ["resume", "--json", "--model", model, thread]
+
+    started = time.perf_counter()
+    result = subprocess.run(
+        [*command, "--", "-"], cwd=workspace, input=prompt,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=150,
+    )
+    events = [json.loads(line) for line in result.stdout.splitlines() if line.startswith("{")]
+    completed = [event for event in events if event.get("type") == "turn.completed"]
+    if result.returncode or not completed:
+        errors = [
+            event.get("message") or event.get("error", {}).get("message")
+            for event in events if event.get("type") in ("error", "turn.failed")
+        ]
+        stderr = result.stderr.strip().splitlines()
+        fallback = stderr[-1] if result.returncode and stderr else "no completed Codex turn"
+        raise RuntimeError(next((error for error in reversed(errors) if error), fallback))
+    items = [event["item"] for event in events if event.get("type") == "item.completed"]
+    messages = [item["text"] for item in items if item["type"] == "agent_message"]
+    skill_files = {
+        path
+        for item in items
+        if item["type"] == "command_execution" and item.get("exit_code") == 0
+        for path in SKILL_PATH.findall(item["command"].replace("\\", "/"))
+    }
+    return {
+        "response": messages[-1] if messages else "",
+        "thread": next((event["thread_id"] for event in events if event.get("type") == "thread.started"), thread),
+        "usage": completed[-1].get("usage", {}),
+        "elapsed_seconds": round(time.perf_counter() - started, 3),
+        "skill_files_in_commands": sorted(skill_files),
+    }
+
+
+def install_product(workspace, label, routing):
+    destination = workspace / ".agents/skills"
+    if routing:
+        for skill in ("frontend", "backend"):
+            shutil.copytree(SKILLS / skill, destination / skill)
+    if label == "skill":
+        shutil.copytree(SKILLS / "product", destination / "product")
+    if label == "baseline":
+        data = subprocess.check_output(["git", "archive", PRODUCT_BASELINE, "skills/product"], cwd=ROOT.parent)
+        with tarfile.open(fileobj=io.BytesIO(data)) as archive:
+            for member in archive:
+                if member.isfile():
+                    path = destination / Path(member.name).relative_to("skills")
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(archive.extractfile(member).read())
+
+
+def product_attempt(label, case, model):
+    with tempfile.TemporaryDirectory(prefix="goat-product-eval-") as directory:
+        workspace = Path(directory)
+        for name, content in case.files.items():
+            path = workspace / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content.encode("utf-8"))
+        subprocess.run(["git", "init", "--quiet"], cwd=workspace, check=True)
+        install_product(workspace, label, case.routing)
+        activation = "automatic selection" if case.routing else (
+            "explicit $product" if label != "control" else "no Product skill"
         )
-        elapsed = time.perf_counter() - started
-        events = [json.loads(line) for line in result.stdout.splitlines() if line.startswith("{")]
-        completed = [event for event in events if event.get("type") == "turn.completed"]
-        if result.returncode or not completed:
-            errors = [
-                event.get("message") or event.get("error", {}).get("message")
-                for event in events if event.get("type") in ("error", "turn.failed")
-            ]
-            stderr = result.stderr.strip().splitlines()
-            fallback = stderr[-1] if result.returncode and stderr else "no completed Codex turn"
-            message = next((error for error in reversed(errors) if error), fallback)
-            raise RuntimeError(message)
-        items = [event["item"] for event in events if event.get("type") == "item.completed"]
-        messages = [item["text"] for item in items if item["type"] == "agent_message"]
-        skill_files = {
-            path
-            for item in items
-            if item["type"] == "command_execution" and item.get("exit_code") == 0
-            for path in SKILL_PATH.findall(item["command"])
+        evidence = {
+            "turns": [], "activation_method": activation, "effort": "low",
+            "commit": PRODUCT_BASELINE if label == "baseline" else (
+                subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+                if label == "skill" else None
+            ),
+            "candidate_source": "working tree" if label == "skill" else None,
+            "reference_evidence": "successful command paths are a proxy",
         }
-        return {
-            **score(case, workspace, messages[-1] if messages else ""),
-            "usage": completed[-1].get("usage", {}),
-            "elapsed_seconds": round(elapsed, 3),
-            "skill_files_in_commands": sorted(skill_files),
-        }
+        thread = None
+        for index, turn in enumerate(case.turns):
+            prompt = turn.prompt
+            if index == 0 and activation == "explicit $product":
+                prompt = "$product\n\n" + prompt
+            before = snapshot(workspace)
+            try:
+                observed = codex_turn(workspace, model, prompt, multi_turn=len(case.turns) > 1,
+                                      thread=thread, effort="low")
+            except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
+                return {**evidence, "status": "not verified", "error": str(exc)}
+            thread = observed.pop("thread")
+            response = observed.pop("response")
+            grade = observe(workspace, before, snapshot(workspace), turn, response)
+            evidence["turns"].append({**observed, **grade, "status": verdict(grade)})
+            if grade["hard_failures"]:
+                return {**evidence, "status": "fail"}
+            if index + 1 < len(case.turns) and not thread:
+                return {**evidence, "status": "not verified", "error": "Codex provided no resumable thread ID"}
+        return {**evidence, "status": "ungraded"}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", required=True, help="Use the same Codex model for both runs.")
     selection = parser.add_mutually_exclusive_group()
-    available = CASES | ROUTING_CASES | {"popup": POPUP_CASE}
-    selection.add_argument("--case", choices=available, help="Run a single pair.")
+    available = CASES | ROUTING_CASES | PRODUCT_CASES | {"popup": POPUP_CASE}
+    selection.add_argument("--case", choices=available, help="Run a single case across its configurations.")
     selection.add_argument("--routing", action="store_true", help="Run the automatic selection cases.")
+    parser.add_argument("--runs", type=int, default=1, help="Trials per configuration.")
     args = parser.parse_args()
+    if args.runs < 1:
+        parser.error("--runs must be at least 1")
 
     cases = ROUTING_CASES if args.routing else CASES
     if args.case:
         cases = {args.case: available[args.case]}
     for name, case in cases.items():
+        if isinstance(case, ProductCase):
+            continue
         with tempfile.TemporaryDirectory(prefix="goat-fixture-") as directory:
             workspace = Path(directory)
             prepare(case, workspace)
@@ -287,14 +360,21 @@ def main():
             if baseline["passed"]:
                 raise SystemExit(f"{name} fixture already passes before agent changes")
 
-    for index, (name, case) in enumerate(cases.items()):
-        order = ("control", "skill") if index % 2 == 0 else ("skill", "control")
-        for label in order:
-            try:
-                result = attempt(label, case, args.model)
-            except (OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
-                raise SystemExit(f"{name}/{label}: {exc}") from exc
-            print(json.dumps({"case": name, "run": label, "model": args.model, **result}), flush=True)
+    host = subprocess.check_output(["codex", "--version"], text=True).strip()
+    for trial in range(1, args.runs + 1):
+        for index, (name, case) in enumerate(cases.items()):
+            product = isinstance(case, ProductCase)
+            arms = ("control", "baseline", "skill") if product else ("control", "skill")
+            offset = (index + trial - 1) % len(arms)
+            for label in arms[offset:] + arms[:offset]:
+                try:
+                    result = (product_attempt if product else attempt)(label, case, args.model)
+                except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+                    raise SystemExit(f"{name}/{label}: {exc}") from exc
+                print(json.dumps({"case": name, "run": label, "trial": trial,
+                                  "host_version": host, "model": args.model, **result}), flush=True)
+                if result.get("status") == "not verified":
+                    raise SystemExit(f"{name}/{label}: {result['error']}")
 
 
 if __name__ == "__main__":
