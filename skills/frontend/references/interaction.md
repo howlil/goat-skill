@@ -1,0 +1,9 @@
+# Interaction
+
+For each changed transition, determine what makes the action available, how the result becomes observable, and what the consumer can do next. Expose pending, committed, and failed outcomes when they lead to different decisions. Keep unrelated actions usable. Preserve safe input after failure and show a recovery action when it can succeed. For a consequential destructive action, use the established undo path or identify the affected target at confirmation.
+
+For async work, check which response still owns the UI after a newer request, a retry, or disposal. Cancel obsolete work where supported and ignore results that can no longer update the current state. Decide whether repeated activation is safe, should be blocked while pending, or needs a guarantee at the implementation boundary. A UI guard handles activation on this surface. The authoritative owner enforces protected effects. Verify a plausible failure or reordered completion when it can change what users see or do.
+
+Use native or established semantic controls. A disclosure expands inline content, a menu offers commands, and a modal changes the focus scope. Use the corresponding behavior on the target platform. For layers, check initial focus, keyboard navigation, dismissal, and restoration. If the trigger disappears, restore focus to a logical remaining target. Keep focus visible and use accessible status feedback without stealing focus. Exercise actual keys and dismissal when those paths change.
+
+Use motion when it communicates cause, status, or continuity. Let the next valid action interrupt or reverse motion when the interaction allows it. Keep exiting content out of the focus path. Preserve feedback with reduced motion using the target platform's settings. Reuse suitable presets and keep feature-specific timing local when the behavior is local. If layout animation risks a hot path, measure on the target runtime.

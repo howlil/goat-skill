@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Find a saved report</title>
+<label for="query">Search saved reports</label>
+<input id="query" type="search">
+<p id="status" role="status"></p>
+<ul id="reports"></ul>
+
+<script>
+  // GET /api/reports?q=<encoded query> returns {"reports": ["report name", ...]}.
+  // An empty query lists all reports. While the service is unavailable, it
+  // responds with HTTP 503. The status region is also used for service errors.
+  const reports = ["Weekly sales", "Open invoices"];
+  const query = document.querySelector("#query");
+  const list = document.querySelector("#reports");
+  const status = document.querySelector("#status");
+
+  function render(names) {
+    list.replaceChildren(...names.map(name => {
+      const row = document.createElement("li");
+      row.textContent = name;
+      return row;
+    }));
+    status.textContent = names.length ? "" : "No matching reports.";
+  }
+
+  query.addEventListener("input", () => {
+    const term = query.value.trim().toLowerCase();
+    render(reports.filter(name => name.toLowerCase().includes(term)));
+  });
+  render(reports);
+</script>
+</html>

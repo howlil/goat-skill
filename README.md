@@ -88,7 +88,7 @@ Add `--routing` to compare a mechanical edit and an ambiguous deletion request. 
 
 Set `MODEL` to a model your Codex account supports. Product cases `p01`–`p12` and `r01`–`r05` are opt-in with `--case`. For example, `python3 evals/run.py --model "$MODEL" --case p05` compares a two-turn unlink request with no Product skill, the pinned Product baseline, and the candidate. Each trial emits the transcript, workspace diff, elapsed time, and native token counters. A failed workspace check is a hard failure. Review each response against its oracle and fill the six rubric fields before calling it a pass. Use `--runs` only when the budget warrants repeats.
 
-Run `--case popup` to compare one nested action menu build with and without `gs:frontend`. The result includes separate Chromium checks for keyboard navigation, submenu focus and dismissal, status feedback, the unavailable action, pointer behavior, and a 320px viewport.
+Frontend cases compare no skill, the pinned previous Frontend skill, and the candidate. Use `--case cli-consumer` for CI compatibility, `--case async-search` for request ordering and recovery, or `--case popup` for nested-menu conformance in Chromium.
 
 ```bash
 python3 -m pip install playwright
