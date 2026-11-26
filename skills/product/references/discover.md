@@ -1,36 +1,32 @@
 # Discover mode
 
-Use when evidence could change whether to build, whom to serve, or which options fit. Use Shape when only the exact behavior is open.
+Use when whether to build, for whom, or whether the option can meet a hard constraint depends on evidence.
 
-## Frame the decision
+## Decide what evidence matters
 
-Check binding constraints and authorized scope first. Rule out options that violate them. Compare viable choices, including a smaller scope or no change. Name the question and the observation that would change the decision. Skip investigation if no plausible answer would change it.
+1. Check binding constraints and authority first. Consider only options within them. If an option is prohibited, assess an allowed alternative or return blocked. A value result cannot override a binding constraint. State the decision and the observation that would change it. Skip investigation when no plausible result would change the decision.
+2. Pick the uncertainty most likely to change the decision. Check another risk only if it blocks the decision or a viable alternative.
+   - **Value.** Who needs this enough to use it?
+   - **Usability.** Can the consumer complete the workflow?
+   - **Viability.** Can it meet privacy, legal, cost, support, and product constraints?
+   - **Feasibility.** Can it work within those constraints? Engineering owns the method.
 
-Check four risks. Start with the decisive unknown and revisit another only if it could block the decision or a safer option.
+## Gather the cheapest sufficient evidence
 
-- Value. Does the intended consumer have the need?
-- Usability. Can they complete the workflow?
-- Viability. Does it fit privacy, legal, cost, support, and product constraints?
-- Feasibility. Can the outcome fit the constraints? Leave the implementation to its owner.
+Start with relevant usage, support, requests, existing behavior, or evidence the requester supplied. Source and tests can establish behavior or feasibility. Demand needs demand evidence. Use public sources for relevant external facts and cite them. State what each observation supports and where it falls short.
 
-## Gather sufficient evidence
+If evidence is missing, name the smallest time-bounded experiment and the observable result that would change the recommendation. Use qualitative criteria unless a threshold is grounded. Run it only within authorized scope. Production exposure, real-user instrumentation, spending, or data collection needs explicit authorization. If proposing an experiment, say it has yet to run.
 
-Start with relevant observations such as usage, support reports, current behavior, and agreed decisions. Ask for evidence the user has when it can resolve the choice. Cite public sources for relevant external facts. Code and prototypes can establish behavior or feasibility within limits. Demand needs evidence from or about the intended users.
-
-State what each observation supports and where it stops. Keep assumptions separate. Say when evidence is missing and use a decision-relevant threshold or qualitative result grounded in the goal.
-
-If a probe would settle the uncertainty, propose the smallest safe, time-bounded experiment with a scoped audience or fixture and a result criterion. Say if it has yet to run. Obtain authorization for production experiments, instrumentation, spending, or data collection. Experiments cannot settle preferences the user owns.
-
-## Output
+## Output and readiness
 
 ```text
-Decision: <viable options>
+Decision: <options under consideration>
 Question: <decisive uncertainty>
 Evidence: <source, observation, limitation>
-Assumptions: <unverified premises, if material>
-Recommendation: <build / smaller / do not build yet and confidence>
+Assumptions: <unverified premises>
+Recommendation: <build / smaller / do not build yet>, confidence <low / medium / high>
 What would change it: <decision-relevant observation>
-Next smallest step: <only when needed>
+Next smallest step: <if needed>
 ```
 
-A recommendation supplies neither readiness nor permission. Shape ready build work only when the decisive evidence supports its intended scope, or when an explicitly authorized, safely scoped experiment is itself the work. Keep experiment findings within that scope. Otherwise stop at a recommendation or next step. If implementation was requested, mark the unresolved work blocked.
+Shape a ready contract only when the decisive uncertainty is resolved for the intended scope, or the requester explicitly authorized a safe, bounded experiment as the deliverable. Give an experiment its own result criterion. A recommendation grants no execution authority. If production evidence or a hard constraint is unresolved, return the recommendation and mark the affected implementation blocked if requested.
