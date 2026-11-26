@@ -22,7 +22,7 @@ from product_cases import CASES as PRODUCT_CASES, ProductCase, Turn, observe, sn
 
 ROOT = Path(__file__).resolve().parent
 SKILLS = ROOT.parent / "skills"
-PRODUCT_BASELINE = "a3a3166b0e0cc3adfbdd4fbeb96248c98194d389"
+PRODUCT_BASELINE = "25c60fe4a9246ec66cb4d264b1bbbab346620869"
 SKILL_PATH = re.compile(r"skills/((?:product|frontend|backend)/(?:SKILL\.md|references/[\w.-]+\.md))")
 
 
